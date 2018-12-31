@@ -1,0 +1,8 @@
+# desktop git ignore
+
+# ignore all
+/*
+
+# except the /src and git ignore
+!.gitignore
+!/src/
