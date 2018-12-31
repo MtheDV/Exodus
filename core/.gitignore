@@ -1,0 +1,8 @@
+# core git ignore
+
+# ignore all
+/*
+
+# except the /src and the git ignore
+!.gitignore
+!/src/

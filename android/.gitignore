@@ -1,0 +1,10 @@
+# android git ignore
+
+# ignore all
+/*
+
+# except the assets folder and the res folder and the source folder and the gitignore
+!.gitignore
+!/assets/
+!/res/
+!/src/

@@ -1,0 +1,10 @@
+# git ignore
+
+# ignore all
+/*
+
+#except /core /android /desktop and git ignore
+!.gitignore
+!/core/
+!/android/
+!/desktop/
