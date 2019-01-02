@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 /*
- * TODO: CREATE BETTER IMAGES FOR THE MENU, GET THE GIT WORKING!
+ * TODO: CREATE BETTER IMAGES FOR THE MENU, SORT OF GOT THE GIT WORKING
  */
 
 class PixelMenu implements Screen, GestureDetector.GestureListener {
