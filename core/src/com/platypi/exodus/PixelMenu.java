@@ -11,12 +11,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 /*
- * TODO: CREATE BETTER IMAGES FOR THE MENU, SORT OF GOT THE GIT WORKING
+ * TODO: CREATE BETTER IMAGES FOR THE MENU, ADD THE WORLD SELECTION BOX, CREATE A BETTER MORE DETAILED WORLD
  */
 
 class PixelMenu implements Screen, GestureDetector.GestureListener {
@@ -29,6 +30,17 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
     private Sprite starBackground;
     private Sprite black;
 
+    // world sprite transition elements
+    private float worldAngle;
+    private boolean worldSpinToLevel;
+    private static int worldDestinationsPick = 0;
+    private static float[] worldAngleDestinations = {270, 0, 90, 180};
+    private boolean worldPick;
+
+    // world pick section
+    private boolean moveToNearestWorld;
+    private float nearestAngle;
+
     // title
     private Texture title;
     private float titleBounce;
@@ -37,6 +49,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
     // fonts
     private FreeTypeFontGenerator fontGenerator;
     private BitmapFont fontSmall;
+    private BitmapFont fontLarge;
 
     // font alpha
     private float fontAlpha;
@@ -50,6 +63,9 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
     // mouse down
     private boolean mouseKeyDown;
+
+    // mouse position
+    private Vector3 mousePos;
 
     // transition
     private PixelTransition transitioner;
@@ -70,11 +86,11 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         spriteBatch = new SpriteBatch();
 
         // initialize the camera and viewport
-        guiCamera   = new OrthographicCamera(200, 200 / ((float)Gdx.graphics.getWidth() / Gdx.graphics.getHeight()));
+        guiCamera = new OrthographicCamera(200, 200 / ((float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight()));
         guiCamera.position.set(guiCamera.viewportWidth / 2f, guiCamera.viewportHeight / 2f, 0);
         guiViewport = new FitViewport(guiCamera.viewportWidth, guiCamera.viewportHeight, guiCamera);
         guiViewport.apply();
-        fontCamera   = new OrthographicCamera(800, 800 / ((float)Gdx.graphics.getWidth() / Gdx.graphics.getHeight()));
+        fontCamera = new OrthographicCamera(800, 800 / ((float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight()));
         fontCamera.position.set(fontCamera.viewportWidth / 2f, fontCamera.viewportHeight / 2f, 0);
         fontViewport = new FitViewport(fontCamera.viewportWidth, fontCamera.viewportHeight, fontCamera);
         fontViewport.apply();
@@ -105,21 +121,29 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         black = new Sprite(new Texture(Gdx.files.internal("Images/GUI/black.png")));
         black.setSize(guiCamera.viewportWidth, 20);
 
+        // world transitions
+        worldAngle = 0;
+        worldSpinToLevel = false;
+        worldPick = false;
+
         // title
         title = new Texture(Gdx.files.internal("Images/Title/title.png"));
         titleBounceUp = false;
 
-        // transiitoner
-        transitioner  = new PixelTransition(guiCamera);
-        enterScreen   = true;
-        exitScreen    = false;
+        // transition sequencer
+        transitioner = new PixelTransition(guiCamera);
+        enterScreen = true;
+        exitScreen = false;
+        moveToNearestWorld = false;
 
         // gesture detector
         gestureDetector = new GestureDetector(this);
     }
 
     @Override
-    public void show() { Gdx.input.setInputProcessor(gestureDetector); }
+    public void show() {
+        Gdx.input.setInputProcessor(gestureDetector);
+    }
 
     @Override
     public void render(float delta) {
@@ -128,21 +152,26 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             guiCamera.update();
             fontCamera.update();
 
-            // rotate world
-            worldSprite.setRotation(worldSprite.getRotation() + .25f);
+            // update world angle
+            worldSprite.setRotation(worldAngle);
 
-            if (worldSprite.getRotation() > 360)
-                worldSprite.setRotation(0);
+            if (!worldSpinToLevel && !worldPick) {
+                // update angle
+                worldAngle += .25f;
+
+                if (worldAngle > 360)
+                    worldAngle = 0;
+            }
 
             // move title letters
             if (titleBounceUp)
-                titleBounce += .0075f;
+                titleBounce += .01f;
             else
-                titleBounce -= .0075f;
+                titleBounce -= .01f;
 
-            if (titleBounce > 1)
+            if (titleBounce > 1.5f)
                 titleBounceUp = false;
-            if (titleBounce < -1)
+            if (titleBounce < -1.5f)
                 titleBounceUp = true;
 
             // change alpha of font
@@ -154,8 +183,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             if (fontAlpha >= 1) {
                 fontAlpha = 1;
                 fontAlphaIn = false;
-            }
-            else if (fontAlpha <= 0) {
+            } else if (fontAlpha <= 0) {
                 fontAlpha = 0;
                 fontAlphaIn = true;
             }
@@ -197,6 +225,41 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                         return; // RETURN BECAUSE SINCE EVERYTHING HAS BEEN DISPOSED OF, IT WILL CRASH IF THE RENDERING IS RUN
                     }
                 }
+                if (worldSpinToLevel && !worldPick) {
+
+                    // move the title screen away
+                    if (titleBounce <= 100)
+                        titleBounce += 2;
+
+                    // update the world angle
+                    worldAngle += (worldAngleDestinations[worldDestinationsPick] + worldAngle) * delta;
+
+                    if (worldAngle <= worldAngleDestinations[worldDestinationsPick] + 1 && worldAngle >= worldAngleDestinations[worldDestinationsPick] - 1) {
+                        worldAngle = worldAngleDestinations[worldDestinationsPick];
+                        worldPick = true;
+                        worldSpinToLevel = false;
+                    }
+
+                    // if it's above 360, go to 0
+                    if (worldAngle > 360)
+                        worldAngle = 0;
+                }
+                if (moveToNearestWorld) {
+                    // update the world angle
+                    if (worldAngle > nearestAngle)
+                        worldAngle += (nearestAngle + worldAngle) * delta;
+                    if (worldAngle < nearestAngle)
+                        worldAngle -= (nearestAngle + worldAngle) * delta;
+
+                    if (worldAngle <= nearestAngle + 1 && worldAngle >= nearestAngle - 1) {
+                        worldAngle = nearestAngle;
+                        moveToNearestWorld = false;
+                    }
+
+                    // if it's above 360, go to 0
+                    if (worldAngle > 360)
+                        worldAngle = 0;
+                }
             }
         }
 
@@ -230,13 +293,14 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
             // draw the font
             if (Gdx.app.getType() == Application.ApplicationType.Android)
-                fontSmall.draw(spriteBatch, "TAP TO START", 0, fontCamera.viewportHeight / 2f - 70, fontCamera.viewportWidth, Align.center, false);
+                fontSmall.draw(spriteBatch, "TAP TO START", 0, 50, fontCamera.viewportWidth, Align.center, false);
             else if (Gdx.app.getType() == Application.ApplicationType.Desktop)
-                fontSmall.draw(spriteBatch, "PRESS ANY KEY", 0, fontCamera.viewportHeight / 2f - 70, fontCamera.viewportWidth, Align.center, false);
+                fontSmall.draw(spriteBatch, "PRESS ANY KEY", 0, 50, fontCamera.viewportWidth, Align.center, false);
 
-            // draw the transitions
+            // change the projection to the gui camera
             spriteBatch.setProjectionMatrix(guiCamera.combined);
 
+            // draw the transitions
             transitioner.render(spriteBatch);
 
             // stop rendering
@@ -279,7 +343,10 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        exitScreen = true;
+        if (!worldPick)
+            worldSpinToLevel = true;
+        else
+            exitScreen = true;
         return false;
     }
 
@@ -295,11 +362,31 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
+        // update the mouse
+        mousePos = new Vector3(x, y, 0);
+        guiCamera.unproject(mousePos, guiViewport.getScreenX(), guiViewport.getScreenY(), guiViewport.getScreenWidth(), guiViewport.getScreenHeight());
+
+        if (worldPick) {
+            worldAngle -= deltaX / 2;
+        }
+
+        if (worldAngle > 360)
+            worldAngle = 0;
+
+        moveToNearestWorld = false;
+
         return false;
     }
 
     @Override
     public boolean panStop(float x, float y, int pointer, int button) {
+        // move to nearest angle
+        moveToNearestWorld = true;
+        for (int i = 0; i < worldAngleDestinations.length; i++) {
+            if (worldAngle <= worldAngleDestinations[i] + (360 / worldAngleDestinations.length / 2) && worldAngle >= worldAngleDestinations[i] - (360 / worldAngleDestinations.length / 2))
+                nearestAngle = worldAngleDestinations[i];
+            System.out.println(nearestAngle);
+        }
         return false;
     }
 
