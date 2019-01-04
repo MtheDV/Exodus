@@ -35,7 +35,10 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
     private boolean worldSpinToLevel;
     private static int worldDestinationsPick = 0;
     private static float[] worldAngleDestinations = {270, 0, 90, 180};
-    private boolean worldPick;
+    private static boolean worldPick = false;
+    private float worldUpWidth;
+    private float worldDownWidth;
+    private boolean worldGrow;
 
     // world pick section
     private boolean moveToNearestWorld;
@@ -60,9 +63,6 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
     private Viewport guiViewport;
     private OrthographicCamera fontCamera;
     private Viewport fontViewport;
-
-    // mouse down
-    private boolean mouseKeyDown;
 
     // mouse position
     private Vector3 mousePos;
@@ -103,28 +103,33 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         fontParameter.color = Color.WHITE;
         fontSmall = fontGenerator.generateFont(fontParameter);
         fontSmall.getData().setScale(1.5f);
+        fontParameter.size = 16;
+        fontParameter.color = Color.WHITE;
+        fontLarge = fontGenerator.generateFont(fontParameter);
+        fontLarge.getData().setScale(2.5f);
 
         // font alpha
         fontAlphaIn = true;
 
-        // mouse down
-        mouseKeyDown = true;
-
         // world sprite
         worldSprite = new Sprite(new Texture(Gdx.files.internal("Images/Title/worldselector.png")));
-        worldSprite.setCenter(guiCamera.viewportWidth / 2, guiCamera.viewportHeight / 2);
+        worldSprite.setCenter(worldSprite.getWidth() / 2, worldSprite.getHeight() / 2);
         worldSprite.setPosition(guiCamera.viewportWidth / 2 - worldSprite.getWidth() / 2, -worldSprite.getHeight() / 2);
 
         starBackground = new Sprite(new Texture(Gdx.files.internal("Images/Title/starbackground.png")));
         starBackground.setPosition(0, 0);
 
         black = new Sprite(new Texture(Gdx.files.internal("Images/GUI/black.png")));
-        black.setSize(guiCamera.viewportWidth, 20);
+        if (worldPick)
+            black.setSize(guiCamera.viewportWidth, 27);
+        else
+            black.setSize(guiCamera.viewportWidth, 20);
 
         // world transitions
-        worldAngle = 0;
+        worldAngle = worldAngleDestinations[worldDestinationsPick];
         worldSpinToLevel = false;
-        worldPick = false;
+        worldUpWidth = worldSprite.getWidth() + 5;
+        worldDownWidth = worldSprite.getWidth();
 
         // title
         title = new Texture(Gdx.files.internal("Images/Title/title.png"));
@@ -152,16 +157,48 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             guiCamera.update();
             fontCamera.update();
 
+            // not touching screen
+            if (!Gdx.input.isTouched())
+                worldGrow = false;
+
             // update world angle
+            if (worldAngle > 360)
+                worldAngle = 0;
+            else if (worldAngle < 0)
+                worldAngle = 360;
+
             worldSprite.setRotation(worldAngle);
 
             if (!worldSpinToLevel && !worldPick) {
                 // update angle
                 worldAngle += .25f;
-
-                if (worldAngle > 360)
-                    worldAngle = 0;
             }
+
+            if (moveToNearestWorld) {
+                // update the world angle
+                if (worldAngle > nearestAngle)
+                    worldAngle += (nearestAngle + worldAngle) * delta;
+                if (worldAngle < nearestAngle)
+                    worldAngle -= (nearestAngle - worldAngle) * delta;
+
+                if (worldAngle <= nearestAngle + 2 && worldAngle >= nearestAngle - 2) {
+                    worldAngle = nearestAngle;
+                    moveToNearestWorld = false;
+                }
+            }
+
+            if (worldGrow) {
+                if (worldSprite.getWidth() < worldUpWidth)
+                    worldSprite.setSize(worldSprite.getWidth() + 1.25f, worldSprite.getHeight() + 1.25f);
+            }
+            else {
+                if (worldSprite.getWidth() > worldDownWidth)
+                    worldSprite.setSize(worldSprite.getWidth() - 1.25f, worldSprite.getHeight() - 1.25f);
+            }
+
+            // change position based on the size
+            worldSprite.setPosition(guiCamera.viewportWidth / 2 - worldDownWidth / 2 - (worldSprite.getWidth() - worldDownWidth) / 2,
+                    -worldSprite.getHeight() / 2 + 10 - (worldSprite.getWidth() - worldDownWidth) / 2);
 
             // move title letters
             if (titleBounceUp)
@@ -189,17 +226,6 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             }
 
             fontSmall.setColor(1, 1, 1, fontAlpha);
-
-            // check for key presses
-            // if any key is pressed or the screen is tapped, start the game
-            if (!mouseKeyDown) {
-                if (Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) {
-                    exitScreen = true;
-                }
-            } else {
-                if (!Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) && !Gdx.input.isTouched())
-                    mouseKeyDown = false;
-            }
 
             { // TRANSITIONS
                 // update transition sequencer
@@ -231,6 +257,10 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                     if (titleBounce <= 100)
                         titleBounce += 2;
 
+                    // change size of black bar
+                    if (black.getHeight() < 27)
+                        black.setSize(black.getWidth(), black.getHeight() + 1);
+
                     // update the world angle
                     worldAngle += (worldAngleDestinations[worldDestinationsPick] + worldAngle) * delta;
 
@@ -239,26 +269,6 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                         worldPick = true;
                         worldSpinToLevel = false;
                     }
-
-                    // if it's above 360, go to 0
-                    if (worldAngle > 360)
-                        worldAngle = 0;
-                }
-                if (moveToNearestWorld) {
-                    // update the world angle
-                    if (worldAngle > nearestAngle)
-                        worldAngle += (nearestAngle + worldAngle) * delta;
-                    if (worldAngle < nearestAngle)
-                        worldAngle -= (nearestAngle + worldAngle) * delta;
-
-                    if (worldAngle <= nearestAngle + 1 && worldAngle >= nearestAngle - 1) {
-                        worldAngle = nearestAngle;
-                        moveToNearestWorld = false;
-                    }
-
-                    // if it's above 360, go to 0
-                    if (worldAngle > 360)
-                        worldAngle = 0;
                 }
             }
         }
@@ -266,6 +276,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         { // RENDERING
             Gdx.gl.glClearColor(0, 0, 0, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        worldGrow = false;
 
             // start rendering
             spriteBatch.begin();
@@ -286,16 +297,20 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             black.draw(spriteBatch);
 
             // draw the title
-            spriteBatch.draw(title, guiCamera.viewportWidth / 2 - title.getWidth() / 2f, guiCamera.viewportHeight - title.getHeight() - 10 + titleBounce);
+            if (!worldPick)
+                spriteBatch.draw(title, guiCamera.viewportWidth / 2 - title.getWidth() / 2f, guiCamera.viewportHeight - title.getHeight() - 10 + titleBounce);
 
             // set the projection matrix to the font camera
             spriteBatch.setProjectionMatrix(fontCamera.combined);
 
             // draw the font
-            if (Gdx.app.getType() == Application.ApplicationType.Android)
+            if (!worldPick) {
                 fontSmall.draw(spriteBatch, "TAP TO START", 0, 50, fontCamera.viewportWidth, Align.center, false);
-            else if (Gdx.app.getType() == Application.ApplicationType.Desktop)
-                fontSmall.draw(spriteBatch, "PRESS ANY KEY", 0, 50, fontCamera.viewportWidth, Align.center, false);
+            }
+            else {
+                fontLarge.draw(spriteBatch, "WORLD " + (worldDestinationsPick + 1), 0, fontCamera.viewportHeight - 35, fontCamera.viewportWidth, Align.center, false);
+                fontSmall.draw(spriteBatch, "SELECT A WORLD", 0, 50, fontCamera.viewportWidth, Align.center, false);
+            }
 
             // change the projection to the gui camera
             spriteBatch.setProjectionMatrix(guiCamera.combined);
@@ -338,6 +353,8 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
+        if (worldPick)
+            worldGrow = true;
         return false;
     }
 
@@ -367,7 +384,11 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         guiCamera.unproject(mousePos, guiViewport.getScreenX(), guiViewport.getScreenY(), guiViewport.getScreenWidth(), guiViewport.getScreenHeight());
 
         if (worldPick) {
+            // move angle based on speed
             worldAngle -= deltaX / 2;
+
+            // grow sprite to show movement
+            worldGrow = true;
         }
 
         if (worldAngle > 360)
@@ -380,14 +401,33 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
     @Override
     public boolean panStop(float x, float y, int pointer, int button) {
-        // move to nearest angle
-        moveToNearestWorld = true;
-        for (int i = 0; i < worldAngleDestinations.length; i++) {
-            if (worldAngle <= worldAngleDestinations[i] + (360 / worldAngleDestinations.length / 2) && worldAngle >= worldAngleDestinations[i] - (360 / worldAngleDestinations.length / 2))
-                nearestAngle = worldAngleDestinations[i];
-            System.out.println(nearestAngle);
-        }
-        return false;
+        if (worldPick)
+            if (worldAngle != worldAngleDestinations[worldDestinationsPick])
+                for (int i = 0; i < worldAngleDestinations.length; i++) {
+                    if (worldAngleDestinations[i] + (360f / worldAngleDestinations.length / 2) > 360) {
+                        if (worldAngle <= worldAngleDestinations[i] + (360f / worldAngleDestinations.length / 2) - 360
+                                || worldAngle >= worldAngleDestinations[i] - (360f / worldAngleDestinations.length / 2)) {
+                            worldAngle = worldAngleDestinations[i];
+                            worldDestinationsPick = i;
+                        }
+                    }
+                    else if (worldAngleDestinations[i] - (360 / worldAngleDestinations.length / 2) < 0) {
+                        if (worldAngle <= worldAngleDestinations[i] + (360f / worldAngleDestinations.length / 2)
+                                || worldAngle >= worldAngleDestinations[i] - (360f / worldAngleDestinations.length / 2) + 360) {
+                            worldAngle = worldAngleDestinations[i];
+                            worldDestinationsPick = i;
+                        }
+                    }
+                    else {
+                        if (worldAngle <= worldAngleDestinations[i] + (360f / worldAngleDestinations.length / 2)
+                                && worldAngle >= worldAngleDestinations[i] - (360f / worldAngleDestinations.length / 2)) {
+                            worldAngle = worldAngleDestinations[i];
+                            worldDestinationsPick = i;
+                        }
+                    }
+                }
+
+        return true;
     }
 
     @Override

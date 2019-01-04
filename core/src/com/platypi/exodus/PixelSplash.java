@@ -71,8 +71,10 @@ class PixelSplash implements Screen {
             if (waitAfterAnimate >= (1 / delta))
                 doneAnimating = true;
 
-            if (doneAnimating)
+            if (doneAnimating) {
                 superGame.setScreen(new PixelMenu(superGame));
+                return;
+            }
 
             // update the splash screen
             splashSprite.setRegion(64 * (int)animateFrames,0, 64, 16);
