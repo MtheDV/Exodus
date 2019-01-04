@@ -109,6 +109,7 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
         fontParameter.size = 16;
         fontParameter.color = Color.WHITE;
         fontSmall = fontGenerator.generateFont(fontParameter);
+        fontSmall.getData().setScale(1.5f);
         fontParameter.size = 16;
         fontParameter.color = Color.WHITE;
         fontLarge = fontGenerator.generateFont(fontParameter);
@@ -302,7 +303,7 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
             spriteBatch.setProjectionMatrix(guiCamera.combined);
 
             // scrolling background
-            spriteBatch.draw(scrollBackground, scrollCounter - 20, -167.7f, scrollBackground.getWidth() * 2, scrollBackground.getHeight() * 2);
+            spriteBatch.draw(scrollBackground, scrollCounter - 20, guiCamera.viewportHeight / 2 - scrollBackground.getHeight() / 2f, scrollBackground.getWidth() * 2, scrollBackground.getHeight() * 2);
 
             // black bars on the top and bottom
             black.setPosition(0, 0);
