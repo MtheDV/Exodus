@@ -28,7 +28,6 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
     private Sprite playerAnimation;
 
     // scrolling background
-    private Texture scrollBackground;
     private static float scrollCounter;
     private float scrollDestX;
     private boolean scroll;
@@ -44,8 +43,8 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
     // back button
     private Sprite backArrow;
 
-    // level data class
-    private static PixelLevelData levelData = new PixelLevelData();
+    // world data
+    static PixelWorlds worldData;
 
     // level selected
     static int levelSelected = 1;
@@ -84,10 +83,13 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
 
     private GestureDetector gestureDetector;
 
-    PixelLevels(Game superGame) {
+    PixelLevels(Game superGame, int world) {
         // initialize the game class
         super();
         this.superGame = superGame;
+
+        // initialize the world
+        worldData = new PixelWorlds(world);
 
         // initialize the sprite batch
         spriteBatch = new SpriteBatch();
@@ -124,8 +126,7 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
         playerAnimation.setPosition(guiCamera.viewportWidth / 2 - playerAnimation.getWidth() / 2, guiCamera.viewportHeight / 2 - playerAnimation.getHeight() / 2);
 
         // scrolling background
-        scrollBackground = new Texture(Gdx.files.internal("Images/Tilemap/scrollingbackground.png"));
-        black            = new Sprite(new Texture(Gdx.files.internal("Images/GUI/black.png")));
+        black = new Sprite(new Texture(Gdx.files.internal("Images/GUI/black.png")));
         black.setSize(guiCamera.viewportWidth, 20);
 
         // transition sequencer
@@ -303,7 +304,8 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
             spriteBatch.setProjectionMatrix(guiCamera.combined);
 
             // scrolling background
-            spriteBatch.draw(scrollBackground, scrollCounter - 20, guiCamera.viewportHeight / 2 - scrollBackground.getHeight() / 2f, scrollBackground.getWidth() * 2, scrollBackground.getHeight() * 2);
+            spriteBatch.draw(worldData.getLevelSelectBackground(), scrollCounter - 20, guiCamera.viewportHeight / 2 - worldData.getLevelSelectBackground().getHeight() / 2f,
+                    worldData.getLevelSelectBackground().getWidth() * 2, worldData.getLevelSelectBackground().getHeight() * 2);
 
             // black bars on the top and bottom
             black.setPosition(0, 0);
@@ -372,7 +374,7 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
         rightArrow.getTexture().dispose();
         backArrow.getTexture().dispose();
         black.getTexture().dispose();
-        scrollBackground.dispose();
+        worldData.dispose();
         transitioner.dispose();
     }
 
@@ -426,8 +428,8 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
             // check if the level selected doesn't go below 0 or higher then the max levels
             if (levelSelected <= 0)
                 levelSelected = 1;
-            else if (levelSelected > levelData.size())
-                levelSelected = levelData.size();
+            else if (levelSelected > worldData.size())
+                levelSelected = worldData.size();
             else {
                 // update scroll information
                 scrollDestX = scrollDestinations[levelSelected - 1];

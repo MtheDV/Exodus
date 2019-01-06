@@ -6,17 +6,23 @@ class PixelLevelData {
 
     private ArrayList<Level> levels;
 
-    PixelLevelData() {
+    PixelLevelData(int world) {
         levels = new ArrayList<Level>();
-        levels.add(
-                new Level("introMapOne.tmx", levels.size() + 1)
-        );
-        levels.add(
-                new Level("platformerMap.tmx", levels.size() + 1)
-        );
-        levels.add(
-                new Level("platformerMap.tmx", levels.size() + 1)
-        );
+
+        // add levels based on world
+        switch (world + 1) {
+            case 1:
+                for (int i = 0; i < 3; i++) {
+                    levels.add(
+                            new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1)
+                    );
+                }
+                break;
+            case 2:
+                break;
+
+                default: break;
+        }
     }
 
     Level getLevel(int levelID) {

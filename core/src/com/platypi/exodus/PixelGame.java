@@ -88,7 +88,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
     // gesture detector
     private GestureDetector gestureDetector;
     // level the player is currently playing on
-    private static final PixelLevelData levelData = new PixelLevelData();
+//    private static final PixelLevelData levelData = new PixelLevelData();
 
     // constructor
     PixelGame(Game game) {
@@ -115,7 +115,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
         // initialize the maps class
         maps = new PixelMap();
         // load the map
-        maps.loadMap(new TmxMapLoader().load(levelData.getLevel(PixelLevels.levelSelected).getFileName()), physicsWorld, player);
+        maps.loadMap(new TmxMapLoader().load(PixelLevels.worldData.getLevel(PixelLevels.levelSelected).getFileName()), physicsWorld, player);
 
         // find x and y positions of player from the map
         final float playerX = maps.getPlayerStartX() + 4;
@@ -392,7 +392,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
 
                     if (fadedIn) {
                         // go back to the menu
-                        superGame.setScreen(new PixelLevels(this.superGame));
+                        superGame.setScreen(new PixelLevels(this.superGame, PixelLevels.worldData.getWorldID()));
                         this.dispose();
                         return;
                     }
@@ -411,13 +411,13 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
 
                     if (fadedIn) {
                         // check if the next level is available, then go to it
-                        if (PixelLevels.levelSelected < levelData.size()) {
+                        if (PixelLevels.levelSelected < PixelLevels.worldData.size()) {
                             PixelLevels.levelSelected++; // move to next level
                             superGame.setScreen(new PixelGame(this.superGame));
                             this.dispose();
                         } else {
                             // go back to the menu
-                            superGame.setScreen(new PixelLevels(this.superGame));
+                            superGame.setScreen(new PixelLevels(this.superGame, PixelLevels.worldData.getWorldID()));
                             this.dispose();
                         }
                         return;

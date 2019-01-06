@@ -261,7 +261,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                     if (!transitioner.isIn())
                         transitioner.setTransition(1);
                     else {
-                        superGame.setScreen(new PixelLevels(this.superGame));
+                        superGame.setScreen(new PixelLevels(this.superGame, worldDestinationsPick));
                         superGame.dispose();
                         return; // RETURN BECAUSE SINCE EVERYTHING HAS BEEN DISPOSED OF, IT WILL CRASH IF THE RENDERING IS RUN
                     }
