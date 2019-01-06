@@ -139,8 +139,8 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         // world transitions
         worldAngle = worldAngleDestinations[worldDestinationsPick];
         worldSpinToLevel = false;
-        worldUpWidth = worldSprite.getWidth() + 5;
-        worldDownWidth = worldSprite.getWidth();
+        worldUpWidth = 1.1f;
+        worldDownWidth = 1;
 
         // title
         title = new Texture(Gdx.files.internal("Images/Title/title.png"));
@@ -204,23 +204,22 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             }
 
             if (worldGrow) {
-                if (worldSprite.getWidth() < worldUpWidth)
-                    worldSprite.setSize(worldSprite.getWidth() + 1.25f, worldSprite.getHeight() + 1.25f);
+                if (worldSprite.getScaleX() < worldUpWidth)
+                    worldSprite.setScale(worldSprite.getScaleX() + .01f);
             }
             else {
-                if (worldSprite.getWidth() > worldDownWidth)
-                    worldSprite.setSize(worldSprite.getWidth() - 1.25f, worldSprite.getHeight() - 1.25f);
+                if (worldSprite.getScaleX() > worldDownWidth)
+                    worldSprite.setScale(worldSprite.getScaleX() - .01f);
             }
 
-            // change position based on the size
-            worldSprite.setPosition(guiCamera.viewportWidth / 2 - worldDownWidth / 2 - (worldSprite.getWidth() - worldDownWidth) / 2,
-                    -worldSprite.getHeight() / 2 + 10 - (worldSprite.getWidth() - worldDownWidth) / 2 + titleBounce);
+            // move world up and down
+            worldSprite.setPosition(guiCamera.viewportWidth / 2 - worldSprite.getWidth() / 2, -worldSprite.getHeight() / 2 + titleBounce);
 
             // move title letters
             if (titleBounceUp)
-                titleBounce += .01f;
+                titleBounce += .015f;
             else
-                titleBounce -= .01f;
+                titleBounce -= .015f;
 
             if (titleBounce > 1.5f)
                 titleBounceUp = false;
@@ -267,7 +266,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                         return; // RETURN BECAUSE SINCE EVERYTHING HAS BEEN DISPOSED OF, IT WILL CRASH IF THE RENDERING IS RUN
                     }
                 }
-                if (worldSpinToLevel && !worldPick) {
+                if (worldSpinToLevel && !worldPick && !backToMenu) {
                     // move the title screen away
                     if (titlePositionY <= guiCamera.viewportHeight + title.getHeight() + 10)
                         titlePositionY += 2;
@@ -277,16 +276,33 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                         black.setSize(black.getWidth(), black.getHeight() + 1);
 
                     // update the world angle
-                    worldAngle += (worldAngleDestinations[worldDestinationsPick] + worldAngle) * delta;
+                    if (worldAngleDestinations[worldDestinationsPick] + 180 > 360) {
+                        if (worldAngle <= worldAngleDestinations[worldDestinationsPick] + 180 - 360)
+                            worldAngle += (worldAngle - worldAngleDestinations[worldDestinationsPick] - 360) * 6 * delta;
+                        if (worldAngle >= worldAngleDestinations[worldDestinationsPick] - 180)
+                            worldAngle -= (worldAngle - worldAngleDestinations[worldDestinationsPick]) * 6 * delta;
+                    }
+                    else if (worldAngleDestinations[worldDestinationsPick] - 180 < 0) {
+                        if (worldAngle <= worldAngleDestinations[worldDestinationsPick] + 180)
+                            worldAngle += (worldAngle - worldAngleDestinations[worldDestinationsPick]) * 6 * delta;
+                        if (worldAngle >= worldAngleDestinations[worldDestinationsPick] - 180 + 360)
+                            worldAngle -= (worldAngle - worldAngleDestinations[worldDestinationsPick] + 360) * 6 * delta;
+                    }
+                    else {
+                        if (worldAngle <= worldAngleDestinations[worldDestinationsPick] + 180)
+                            worldAngle += (worldAngle - worldAngleDestinations[worldDestinationsPick]) * 6 * delta;
+                        if (worldAngle >= worldAngleDestinations[worldDestinationsPick] - 180)
+                            worldAngle -= (worldAngle - worldAngleDestinations[worldDestinationsPick]) * 6 * delta;
+                    }
 
-                    if (worldAngle <= worldAngleDestinations[worldDestinationsPick] + 1 && worldAngle >= worldAngleDestinations[worldDestinationsPick] - 1 &&
+                    if (worldAngle <= worldAngleDestinations[worldDestinationsPick] + .5 && worldAngle >= worldAngleDestinations[worldDestinationsPick] - .5 &&
                             titlePositionY >= guiCamera.viewportHeight + title.getHeight() + 10 && black.getHeight() >= 27) {
                         worldAngle = worldAngleDestinations[worldDestinationsPick];
                         worldPick = true;
                         worldSpinToLevel = false;
                     }
                 }
-                if (backToMenu) {
+                if (backToMenu && !worldSpinToLevel) {
                     // move the title screen in
                     if (titlePositionY >= guiCamera.viewportHeight - title.getHeight() - 10)
                         titlePositionY -= 2;
@@ -437,13 +453,10 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
         if (worldPick) {
             // move angle based on speed
-            worldAngle -= deltaX / 2;
+            worldAngle -= deltaX / 2.5f;
 
             // grow sprite to show movement
             worldGrow = true;
-
-            // set center
-            worldSprite.setOriginCenter();
         }
 
         if (worldAngle > 360)
