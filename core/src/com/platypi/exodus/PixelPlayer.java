@@ -87,20 +87,20 @@ class PixelPlayer {
             body.setFixedRotation(true);
             // SENSOR FOR THE GROUND
             // create the shape of the body (square)
-            PolygonShape groundShape = new PolygonShape();
-            groundShape.setAsBox((sprite.getWidth() - .5f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (1f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
+            shape = new PolygonShape();
+            shape.setAsBox((sprite.getWidth() - .5f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (1f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
                     new Vector2(.05f / PIXELS_TO_METERS * SCREEN_RATIO, - (sprite.getHeight() / 2 - (1 / 2f)) / PIXELS_TO_METERS * SCREEN_RATIO), 0);
 
             // set the physics properties of the body
-            FixtureDef groundFixDef = new FixtureDef();
-            groundFixDef.shape      = groundShape;
-            groundFixDef.friction   = 0f;
-            groundFixDef.density    = 1f;
+            fixtureDef = new FixtureDef();
+            fixtureDef.shape      = shape;
+            fixtureDef.friction   = 0f;
+            fixtureDef.density    = 1f;
             // add the fixture definition to the body
-            body.createFixture(groundFixDef);
+            body.createFixture(fixtureDef);
+
             // dispose of what I can so there are as little to no memory leaks
             shape.dispose();
-            groundShape.dispose();
         }
 
         { // CREATING THE CAMERA AND VIEWPORT

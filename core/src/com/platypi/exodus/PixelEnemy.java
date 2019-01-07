@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
 import static com.platypi.exodus.PixelGame.PIXELS_TO_METERS;
@@ -19,12 +20,16 @@ class PixelEnemy {
 
     private float width, height;
 
-    PixelEnemy(float x, float y, float width, float height, World physicsWorld) {
+    PixelEnemy(float x, float y, float width, float height, int enemyType, World physicsWorld) {
         // set the width and height
         height = 8;
         width = 8;
         // set the sprite of the puzzle box
         enemySprite = new Sprite(new Texture(Gdx.files.internal("Images/Enemies/enemytest.png")));
+        // set the enemy sprite if given
+        if (enemyType == 1)
+            enemySprite = new Sprite(new Texture(Gdx.files.internal("Images/Enemies/enemytest.png")));
+        // set the position
         enemySprite.setPosition(x, y);
         // set any pixel coordinates to world coordinates
         x  = x / PIXELS_TO_METERS * SCREEN_RATIO;
@@ -44,6 +49,7 @@ class PixelEnemy {
         fixtureDef.density    = 3f;                 // define the density
         body.createFixture(fixtureDef);             // create the fixture definition to the body
         body.setFixedRotation(true);                // fixed rotation
+
         shape = new PolygonShape();
         shape.setAsBox(width / 2f, height / 4f);
         fixtureDef = new FixtureDef();
@@ -51,6 +57,15 @@ class PixelEnemy {
         fixtureDef.friction = 3f;
         fixtureDef.density  = 3f;
         body.createFixture(fixtureDef);
+
+        shape = new PolygonShape();
+        shape.setAsBox((enemySprite.getWidth()) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (1f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
+                new Vector2(0 / PIXELS_TO_METERS * SCREEN_RATIO, (enemySprite.getHeight() / 2 - (1 / 2f)) / PIXELS_TO_METERS * SCREEN_RATIO), 0);
+        fixtureDef = new FixtureDef();
+        fixtureDef.shape    = shape;
+        fixtureDef.isSensor = true;
+        body.createFixture(fixtureDef);
+
         shape.dispose();                            // dispose of what you can
 
         moveRight = true;

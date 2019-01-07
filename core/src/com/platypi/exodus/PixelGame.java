@@ -213,8 +213,12 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                 for (PixelEnemy enemy : maps.getPixelEnemyList()) {
                     if ((contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) || contact.getFixtureB() == enemy.getBody().getFixtureList().get(1)))
                         enemy.changeDirection(!enemy.getDirection());
-                    if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == enemy.getBody())
-                            || (contact.getFixtureA().getBody() == enemy.getBody() && contact.getFixtureB().getBody() == player.getBody()))
+                    if ((contact.getFixtureA() == player.getBody().getFixtureList().get(1) && contact.getFixtureB() == enemy.getBody().getFixtureList().get(2))
+                            || (contact.getFixtureA() == enemy.getBody().getFixtureList().get(2) && contact.getFixtureB() == player.getBody().getFixtureList().get(1)))
+                        if (player.getJumping())
+                            maps.removeEnemy(enemy);
+                    if ((contact.getFixtureA() == player.getBody().getFixtureList().get(0) && contact.getFixtureB() == enemy.getBody().getFixtureList().get(1))
+                            || (contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) && contact.getFixtureB() == player.getBody().getFixtureList().get(0)))
                         resetLevel = true;
                 }
             }
@@ -286,7 +290,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         player.update(maps.getMainMapProperties());
 
                     // update the map
-                    maps.update(player.getSprite().getX(), player.getSprite().getY());
+                    maps.update(player.getSprite().getX(), player.getSprite().getY(), physicsWorld);
 
                     if (Gdx.input.isKeyJustPressed(Input.Keys.P))
                         pause = true;
@@ -514,6 +518,11 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         spriteBatch.draw(scrollPause, scrollBackground1, guiCamera.viewportHeight / 2 - scrollPause.getHeight() / 2f);
                         spriteBatch.draw(scrollPause, scrollBackground2, guiCamera.viewportHeight / 2 - scrollPause.getHeight() / 2f);
 
+                        // buttons
+                        homeButton.draw(spriteBatch);
+                        restartButton.draw(spriteBatch);
+                        resumeButton.draw(spriteBatch);
+
                         // to the font camera matrix
                         spriteBatch.setProjectionMatrix(fontCamera.combined);
 
@@ -522,11 +531,6 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
 
                         // back to the gui camera matrix
                         spriteBatch.setProjectionMatrix(guiCamera.combined);
-
-                        // buttons
-                        homeButton.draw(spriteBatch);
-                        restartButton.draw(spriteBatch);
-                        resumeButton.draw(spriteBatch);
                     }
                 }
 

@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 class PixelMap {
 
@@ -37,6 +38,8 @@ class PixelMap {
 
     private float playerStartX, playerStartY;
 
+    private PixelEnemy removeEnemyID;
+
     private enum Types {
         WALL, PUZZLEBOX, PUZZLEBUTTON, PUZZLEWALL, PLAYERSTART, PLAYEREND, SIGN, TRAP, ENEMY
     }
@@ -58,7 +61,7 @@ class PixelMap {
         backgroundY = 0;
     }
 
-    void update(float playerX, float playerY) {
+    void update(float playerX, float playerY, World physicsWorld) {
         // update the background so it scrolls slowly
         backgroundX = -playerX / 20f;
         backgroundY = -playerY / 35f;
@@ -86,6 +89,8 @@ class PixelMap {
                 }
             }
         }
+
+        removeEnemies(physicsWorld);
     }
 
     void renderBackground(SpriteBatch spriteBatch) {
@@ -212,10 +217,10 @@ class PixelMap {
         );
     }
 
-    private void createEnemy(float x, float y, float width, float height, World physicsWorld) {
+    private void createEnemy(float x, float y, float width, float height, int enemyType, World physicsWorld) {
         // add an enemy to the list
         pixelEnemyList.add(
-                new PixelEnemy(x, y, width, height, physicsWorld)
+                new PixelEnemy(x, y, width, height, enemyType, physicsWorld)
         );
     }
 
@@ -277,15 +282,33 @@ class PixelMap {
                         // create rectangle of the player start position
                         Rectangle enemyRectangle = ((RectangleMapObject) worldObjects).getRectangle();
                         // set the position
-                        createEnemy(enemyRectangle.x, enemyRectangle.y, enemyRectangle.width, enemyRectangle.height, physicsWorld);
+                        createEnemy(enemyRectangle.x, enemyRectangle.y, enemyRectangle.width, enemyRectangle.height, Integer.valueOf(String.valueOf(worldObjects.getProperties().get("type"))), physicsWorld);
                     }
                 }
+            }
+
+        }
+    }
+
+    private void removeEnemies(World physicsWorld) {
+        Iterator it = pixelEnemyList.iterator();
+        while (it.hasNext()) {
+            PixelEnemy enemy = (PixelEnemy)it.next();
+            if (enemy == removeEnemyID) {
+                it.remove();
+                physicsWorld.destroyBody(enemy.getBody());
             }
         }
     }
 
     float getPlayerStartX() { return  playerStartX; }
     float getPlayerStartY() { return  playerStartY; }
+
+    PixelEnemy getRemoveEnemyID() { return removeEnemyID; }
+
+    void removeEnemy(PixelEnemy removeEnemyID) {
+        this.removeEnemyID = removeEnemyID;
+    }
 
     MapProperties getMainMapProperties() { return mainMapProperties; }
 
