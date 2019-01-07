@@ -363,8 +363,9 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             }
             else {
                 // completed levels
-                fontLarge.draw(spriteBatch, worlds.getWorld(worldDestinationsPick).getCompletedLevels() + "/" + worlds.getWorld(worldDestinationsPick).getTotalLevels(),
-                        0, fontCamera.viewportHeight - 150, fontCamera.viewportWidth, Align.center, false);
+                if (worldDestinationsPick < worlds.getTotalWorlds())
+                    fontLarge.draw(spriteBatch, worlds.getWorld(worldDestinationsPick).getCompletedLevels() + "/" + worlds.getWorld(worldDestinationsPick).getTotalLevels(),
+                            0, fontCamera.viewportHeight - 150, fontCamera.viewportWidth, Align.center, false);
 
                 // text inside the black bars
                 fontLarge.draw(spriteBatch, "WORLD " + (worldDestinationsPick + 1), 0, fontCamera.viewportHeight - 35, fontCamera.viewportWidth, Align.center, false);

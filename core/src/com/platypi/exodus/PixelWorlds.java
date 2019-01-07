@@ -21,6 +21,8 @@ class PixelWorlds {
         return worldLevels.get(worldID);
     }
 
+    int getTotalWorlds() { return totalWorlds; }
+
     void dispose() {
         for (PixelLevelData worlds : worldLevels) {
             worlds.dispose();

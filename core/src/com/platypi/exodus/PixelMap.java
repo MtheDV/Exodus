@@ -29,6 +29,7 @@ class PixelMap {
     private ArrayList<PixelExit> pixelExitList;
     private ArrayList<PixelSign> pixelSignList;
     private ArrayList<PixelTrap> pixelTrapList;
+    private ArrayList<PixelEnemy> pixelEnemyList;
 
     private Texture background;
     private float backgroundX;
@@ -37,7 +38,7 @@ class PixelMap {
     private float playerStartX, playerStartY;
 
     private enum Types {
-        WALL, PUZZLEBOX, PUZZLEBUTTON, PUZZLEWALL, PLAYERSTART, PLAYEREND, SIGN, TRAP
+        WALL, PUZZLEBOX, PUZZLEBUTTON, PUZZLEWALL, PLAYERSTART, PLAYEREND, SIGN, TRAP, ENEMY
     }
 
     PixelMap() {
@@ -49,6 +50,7 @@ class PixelMap {
         pixelExitList          = new ArrayList<PixelExit>();
         pixelSignList          = new ArrayList<PixelSign>();
         pixelTrapList          = new ArrayList<PixelTrap>();
+        pixelEnemyList         = new ArrayList<PixelEnemy>();
 
         // set the background
         background  = new Texture(Gdx.files.internal("Images/Tilemap/background.png"));
@@ -68,6 +70,10 @@ class PixelMap {
             puzzleButton.update();
         for (PixelPuzzleWall puzzleWall : pixelPuzzleWallList)
             puzzleWall.update();
+
+        // update the enemies
+        for (PixelEnemy enemy : pixelEnemyList)
+            enemy.update();
 
         // loop through the buttons and the walls to find id's and set active or not
         for (int i = 0; i < pixelPuzzleButtonsList.size(); i++) {
@@ -103,6 +109,8 @@ class PixelMap {
             puzzleButton.render(spriteBatch);
         for (PixelPuzzleWall puzzleWall : pixelPuzzleWallList)
             puzzleWall.render(spriteBatch);
+        for (PixelEnemy enemy : pixelEnemyList)
+            enemy.render(spriteBatch);
     }
 
     void renderFonts(SpriteBatch spriteBatch, OrthographicCamera camera) {
@@ -126,6 +134,7 @@ class PixelMap {
         pixelBoxList.clear();
         pixelSignList.clear();
         pixelTrapList.clear();
+        pixelEnemyList.clear();
 
         // set the map
         mainMap = newMap;
@@ -150,6 +159,8 @@ class PixelMap {
         getLayerObjects("signs", physicsWorld, Types.SIGN);
         // get the trap properties
         getLayerObjects("traps", physicsWorld, Types.TRAP);
+        // get the enemy properties
+        getLayerObjects("enemies", physicsWorld, Types.ENEMY);
     }
 
     private void createBox(float x, float y, float width, float height, World physicsWorld, boolean isOneWay) {
@@ -195,9 +206,16 @@ class PixelMap {
     }
 
     private void createTrap(float x, float y, float width, float height, World physicsWorld) {
-        // add a sign to the list
+        // add a trap to the list
         pixelTrapList.add(
                 new PixelTrap(x, y, width, height, physicsWorld)
+        );
+    }
+
+    private void createEnemy(float x, float y, float width, float height, World physicsWorld) {
+        // add an enemy to the list
+        pixelEnemyList.add(
+                new PixelEnemy(x, y, width, height, physicsWorld)
         );
     }
 
@@ -212,48 +230,54 @@ class PixelMap {
                         // create a box2d rectangle for the game
                         createBox(collisionRectangle.x, collisionRectangle.y, collisionRectangle.width, collisionRectangle.height, physicsWorld, Boolean.valueOf(String.valueOf(worldObjects.getProperties().get("isOneWay"))));
                     }
-                    if (type == Types.PUZZLEBOX) {
+                    else if (type == Types.PUZZLEBOX) {
                         // create a rectangle based on each rectangle object
                         Rectangle puzzleRectangle = ((RectangleMapObject) worldObjects).getRectangle();
                         // create the puzzle box
                         createPuzzleBox(puzzleRectangle.x, puzzleRectangle.y, physicsWorld);
                     }
-                    if (type == Types.PUZZLEBUTTON) {
+                    else if (type == Types.PUZZLEBUTTON) {
                         // create a rectangle based on each rectangle object
                         Rectangle puzzleRectangle = ((RectangleMapObject) worldObjects).getRectangle();
                         // create the puzzle button
                         createPuzzleButton(puzzleRectangle.x, puzzleRectangle.y, physicsWorld, Integer.valueOf(String.valueOf(worldObjects.getProperties().get("PUZZLE_ID"))));
                     }
-                    if (type == Types.PUZZLEWALL) {
+                    else if (type == Types.PUZZLEWALL) {
                         // create a rectangle based on each rectangle object
                         Rectangle puzzleRectangle = ((RectangleMapObject) worldObjects).getRectangle();
                         // create the puzzle button
                         createPuzzleWall(puzzleRectangle.x, puzzleRectangle.y, puzzleRectangle.width, puzzleRectangle.height, physicsWorld, Integer.valueOf(String.valueOf(worldObjects.getProperties().get("PUZZLE_ID"))));
                     }
-                    if (type == Types.PLAYERSTART) {
+                    else if (type == Types.PLAYERSTART) {
                         // create rectangle of the player start position
                         Rectangle startRectangle = ((RectangleMapObject) worldObjects).getRectangle();
                         // set the position
                         playerStartX = startRectangle.x;
                         playerStartY = startRectangle.y;
                     }
-                    if (type == Types.PLAYEREND) {
+                    else if (type == Types.PLAYEREND) {
                         // create rectangle of the player start position
                         Rectangle endRectangle = ((RectangleMapObject) worldObjects).getRectangle();
                         // set the position
                         createExit(endRectangle.x, endRectangle.y, endRectangle.width, endRectangle.height, physicsWorld);
                     }
-                    if (type == Types.SIGN) {
+                    else if (type == Types.SIGN) {
                         // create rectangle of the player start position
                         Rectangle signRectangle = ((RectangleMapObject) worldObjects).getRectangle();
                         // set the position
                         createSign(signRectangle.x, signRectangle.y, String.valueOf(worldObjects.getProperties().get("text")), Float.valueOf(String.valueOf(worldObjects.getProperties().get("scale"))), physicsWorld);
                     }
-                    if (type == Types.TRAP) {
+                    else if (type == Types.TRAP) {
                         // create rectangle of the player start position
                         Rectangle trapRectangle = ((RectangleMapObject) worldObjects).getRectangle();
                         // set the position
                         createTrap(trapRectangle.x, trapRectangle.y, trapRectangle.width, trapRectangle.height, physicsWorld);
+                    }
+                    else if (type == Types.ENEMY) {
+                        // create rectangle of the player start position
+                        Rectangle enemyRectangle = ((RectangleMapObject) worldObjects).getRectangle();
+                        // set the position
+                        createEnemy(enemyRectangle.x, enemyRectangle.y, enemyRectangle.width, enemyRectangle.height, physicsWorld);
                     }
                 }
             }
@@ -277,6 +301,8 @@ class PixelMap {
 
     ArrayList<PixelTrap> getPixelTrapList() { return pixelTrapList; }
 
+    ArrayList<PixelEnemy> getPixelEnemyList() { return pixelEnemyList; }
+
     void dispose() {
         mainMap.dispose();
         for (PixelPuzzleBox puzzleBox : pixelPuzzleBoxList)
@@ -285,6 +311,8 @@ class PixelMap {
             puzzleButton.getSprite().getTexture().dispose();
         for (PixelPuzzleWall puzzleWall : pixelPuzzleWallList)
             puzzleWall.getSprite().getTexture().dispose();
+        for (PixelEnemy enemy : pixelEnemyList)
+            enemy.getSprite().getTexture().dispose();
     }
 
 }
