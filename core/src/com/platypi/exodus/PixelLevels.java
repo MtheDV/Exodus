@@ -43,8 +43,8 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
     // back button
     private Sprite backArrow;
 
-    // world data
-    static PixelWorlds worldData;
+    // current world
+    static int world;
 
     // level selected
     static int levelSelected = 1;
@@ -88,8 +88,8 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
         super();
         this.superGame = superGame;
 
-        // initialize the world
-        worldData = new PixelWorlds(world);
+        // set the world
+        this.world = world;
 
         // initialize the sprite batch
         spriteBatch = new SpriteBatch();
@@ -304,8 +304,9 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
             spriteBatch.setProjectionMatrix(guiCamera.combined);
 
             // scrolling background
-            spriteBatch.draw(worldData.getLevelSelectBackground(), scrollCounter - 20, guiCamera.viewportHeight / 2 - worldData.getLevelSelectBackground().getHeight() / 2f,
-                    worldData.getLevelSelectBackground().getWidth() * 2, worldData.getLevelSelectBackground().getHeight() * 2);
+            spriteBatch.draw(PixelMenu.worlds.getWorld(world).getLevelSelectBackground(), scrollCounter - 20,
+                    guiCamera.viewportHeight / 2 - PixelMenu.worlds.getWorld(world).getLevelSelectBackground().getHeight() / 2f,
+                    PixelMenu.worlds.getWorld(world).getLevelSelectBackground().getWidth() * 2, PixelMenu.worlds.getWorld(world).getLevelSelectBackground().getHeight() * 2);
 
             // black bars on the top and bottom
             black.setPosition(0, 0);
@@ -374,7 +375,6 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
         rightArrow.getTexture().dispose();
         backArrow.getTexture().dispose();
         black.getTexture().dispose();
-        worldData.dispose();
         transitioner.dispose();
     }
 
@@ -428,8 +428,8 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
             // check if the level selected doesn't go below 0 or higher then the max levels
             if (levelSelected <= 0)
                 levelSelected = 1;
-            else if (levelSelected > worldData.size())
-                levelSelected = worldData.size();
+            else if (levelSelected > PixelMenu.worlds.getWorld(world).size())
+                levelSelected = PixelMenu.worlds.getWorld(world).size();
             else {
                 // update scroll information
                 scrollDestX = scrollDestinations[levelSelected - 1];

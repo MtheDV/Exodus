@@ -115,7 +115,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
         // initialize the maps class
         maps = new PixelMap();
         // load the map
-        maps.loadMap(new TmxMapLoader().load(PixelLevels.worldData.getLevel(PixelLevels.levelSelected).getFileName()), physicsWorld, player);
+        maps.loadMap(new TmxMapLoader().load(PixelMenu.worlds.getWorld(PixelLevels.world).getLevel(PixelLevels.levelSelected).getFileName()), physicsWorld, player);
 
         // find x and y positions of player from the map
         final float playerX = maps.getPlayerStartX() + 4;
@@ -392,7 +392,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
 
                     if (fadedIn) {
                         // go back to the menu
-                        superGame.setScreen(new PixelLevels(this.superGame, PixelLevels.worldData.getWorldID()));
+                        superGame.setScreen(new PixelLevels(this.superGame, PixelLevels.world));
                         this.dispose();
                         return;
                     }
@@ -411,13 +411,13 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
 
                     if (fadedIn) {
                         // check if the next level is available, then go to it
-                        if (PixelLevels.levelSelected < PixelLevels.worldData.size()) {
+                        if (PixelLevels.levelSelected < PixelMenu.worlds.getWorld(PixelLevels.world).size()) {
                             PixelLevels.levelSelected++; // move to next level
                             superGame.setScreen(new PixelGame(this.superGame));
                             this.dispose();
                         } else {
                             // go back to the menu
-                            superGame.setScreen(new PixelLevels(this.superGame, PixelLevels.worldData.getWorldID()));
+                            superGame.setScreen(new PixelLevels(this.superGame, PixelLevels.world));
                             this.dispose();
                         }
                         return;

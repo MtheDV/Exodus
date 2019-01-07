@@ -1,31 +1,30 @@
 package com.platypi.exodus;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
+import java.util.ArrayList;
 
-public class PixelWorlds extends PixelLevelData {
+class PixelWorlds {
 
-    private Texture levelSelectBackground;
+    private ArrayList<PixelLevelData> worldLevels;
 
-    private int worldID;
+    private static final int totalWorlds = 2;
 
-    PixelWorlds(int world) {
-        // initialize the levels
-        super(world);
+    PixelWorlds() {
+        // initialize the worlds list
+        worldLevels = new ArrayList<PixelLevelData>();
 
-        // set the id
-        worldID = world;
-
-        // set the scrolling background for the world
-        levelSelectBackground = new Texture(Gdx.files.internal("Images/Tilemap/scrollingbackgroundWorld" + (world + 1) + ".png"));
+        // initialize the worlds
+        for (int i = 0; i < totalWorlds; i++)
+            worldLevels.add(new PixelLevelData(i));
     }
 
-    Texture getLevelSelectBackground() { return levelSelectBackground; }
-
-    int getWorldID() { return worldID; }
+    PixelLevelData getWorld(int worldID) {
+        return worldLevels.get(worldID);
+    }
 
     void dispose() {
-        levelSelectBackground.dispose();
+        for (PixelLevelData worlds : worldLevels) {
+            worlds.dispose();
+        }
     }
 
 }

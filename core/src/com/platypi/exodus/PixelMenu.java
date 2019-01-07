@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 /*
- * TODO: CREATE BETTER IMAGES FOR THE MENU, ADD THE WORLD SELECTION BOX, CREATE A BETTER MORE DETAILED WORLD
+ * TODO: CREATE A BETTER MORE DETAILED WORLD, MORE WORLDS, LOCK THE LEVELS THAT AREN'T AVAILABLE
  */
 
 class PixelMenu implements Screen, GestureDetector.GestureListener {
@@ -77,6 +77,9 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
     private boolean enterScreen;
     private boolean exitScreen;
 
+    // worlds
+    static final PixelWorlds worlds = new PixelWorlds();
+
     // hold the game class to call other screens
     private Game superGame;
     // gesture detector
@@ -126,7 +129,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
         black = new Sprite(new Texture(Gdx.files.internal("Images/GUI/black.png")));
         if (worldPick)
-            black.setSize(guiCamera.viewportWidth, 27);
+            black.setSize(guiCamera.viewportWidth, 25);
         else
             black.setSize(guiCamera.viewportWidth, 20);
 
@@ -272,7 +275,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                         titlePositionY += 2;
 
                     // change size of black bar
-                    if (black.getHeight() < 27)
+                    if (black.getHeight() < 25)
                         black.setSize(black.getWidth(), black.getHeight() + 1);
 
                     // update the world angle
@@ -296,7 +299,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                     }
 
                     if (worldAngle <= worldAngleDestinations[worldDestinationsPick] + .5 && worldAngle >= worldAngleDestinations[worldDestinationsPick] - .5 &&
-                            titlePositionY >= guiCamera.viewportHeight + title.getHeight() + 10 && black.getHeight() >= 27) {
+                            titlePositionY >= guiCamera.viewportHeight + title.getHeight() + 10 && black.getHeight() >= 25) {
                         worldAngle = worldAngleDestinations[worldDestinationsPick];
                         worldPick = true;
                         worldSpinToLevel = false;
@@ -359,6 +362,11 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                 fontSmall.draw(spriteBatch, "TAP TO START", 0, 50, fontCamera.viewportWidth, Align.center, false);
             }
             else {
+                // completed levels
+                fontLarge.draw(spriteBatch, worlds.getWorld(worldDestinationsPick).getCompletedLevels() + "/" + worlds.getWorld(worldDestinationsPick).getTotalLevels(),
+                        0, fontCamera.viewportHeight - 150, fontCamera.viewportWidth, Align.center, false);
+
+                // text inside the black bars
                 fontLarge.draw(spriteBatch, "WORLD " + (worldDestinationsPick + 1), 0, fontCamera.viewportHeight - 35, fontCamera.viewportWidth, Align.center, false);
                 fontSmall.draw(spriteBatch, "SELECT A WORLD", 0, 60, fontCamera.viewportWidth, Align.center, false);
             }
@@ -399,6 +407,13 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
     public void dispose() {
         spriteBatch.dispose();
         fontSmall.dispose();
+        fontLarge.dispose();
+        worldSprite.getTexture().dispose();
+        starBackground.getTexture().dispose();
+        black.getTexture().dispose();
+        backArrow.getTexture().dispose();
+        title.dispose();
+        transitioner.dispose();
         fontGenerator.dispose();
     }
 
