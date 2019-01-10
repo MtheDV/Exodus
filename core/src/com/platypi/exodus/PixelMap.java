@@ -99,7 +99,7 @@ class PixelMap {
 
     void render(OrthographicCamera cameraView) {
         mainMapRenderer.setView(cameraView);
-        mainMapRenderer.render();
+        mainMapRenderer.render(new int[]{0,1});
     }
 
     void renderInFront(OrthographicCamera cameraView) {

@@ -11,8 +11,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-//import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
@@ -78,8 +76,8 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
     // physics world for collisions
     private World physicsWorld;
     // debug renderer
-    private Box2DDebugRenderer debugRenderer;
-    private Matrix4 debugMatrix;
+//    private Box2DDebugRenderer debugRenderer;
+//    private Matrix4 debugMatrix;
     // scale for the world
     final static float SCREEN_RATIO = 15f;
     final static float PIXELS_TO_METERS = 100f;
@@ -101,7 +99,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
         // create the physics world
         physicsWorld = new World(new Vector2(0, -98f), true);
         // create the debug renderer
-        debugRenderer = new Box2DDebugRenderer();
+//        debugRenderer = new Box2DDebugRenderer();
 
         // new level initiators
         setNewLevel = true;
@@ -465,7 +463,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                 // set the projection matrix to the player's camera
                 spriteBatch.setProjectionMatrix(player.getCamera().combined);
                 // get the projection matrix for the debug renderer
-                debugMatrix = player.getCamera().combined.scl(PIXELS_TO_METERS / SCREEN_RATIO);
+                //debugMatrix = player.getCamera().combined.scl(PIXELS_TO_METERS / SCREEN_RATIO);
 
                 // draw the map items
                 maps.render(spriteBatch);
