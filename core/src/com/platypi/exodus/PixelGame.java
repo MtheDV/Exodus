@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
@@ -76,8 +77,8 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
     // physics world for collisions
     private World physicsWorld;
     // debug renderer
-//    private Box2DDebugRenderer debugRenderer;
-//    private Matrix4 debugMatrix;
+    private Box2DDebugRenderer debugRenderer;
+    private Matrix4 debugMatrix;
     // scale for the world
     final static float SCREEN_RATIO = 15f;
     final static float PIXELS_TO_METERS = 100f;
@@ -99,7 +100,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
         // create the physics world
         physicsWorld = new World(new Vector2(0, -98f), true);
         // create the debug renderer
-//        debugRenderer = new Box2DDebugRenderer();
+        debugRenderer = new Box2DDebugRenderer();
 
         // new level initiators
         setNewLevel = true;
@@ -213,10 +214,10 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         enemy.changeDirection(!enemy.getDirection());
                     if ((contact.getFixtureA() == player.getBody().getFixtureList().get(1) && contact.getFixtureB() == enemy.getBody().getFixtureList().get(2))
                             || (contact.getFixtureA() == enemy.getBody().getFixtureList().get(2) && contact.getFixtureB() == player.getBody().getFixtureList().get(1)))
-                        if (player.getJumping())
-                            maps.removeEnemy(enemy);
-                    if ((contact.getFixtureA() == player.getBody().getFixtureList().get(0) && contact.getFixtureB() == enemy.getBody().getFixtureList().get(1))
-                            || (contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) && contact.getFixtureB() == player.getBody().getFixtureList().get(0)))
+                        if (player.getVelocityY() <= 0)
+                            enemy.setDead(true);
+                    else if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB() == enemy.getBody().getFixtureList().get(1))
+                            || (contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) && contact.getFixtureB().getBody() == player.getBody()))
                         resetLevel = true;
                 }
             }
@@ -245,6 +246,20 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                                 contact.setEnabled(true);
                             else
                                 contact.setEnabled(false);
+                        }
+                    }
+                }
+                for (PixelCollision pixelCollision : maps.getPixelBoxList()) {
+                    for (PixelEnemy enemy : maps.getPixelEnemyList()) {
+                        if ((contact.getFixtureA().getBody() == enemy.getBody() && contact.getFixtureB().getBody() == pixelCollision.getBody())
+                                || contact.getFixtureA().getBody() == pixelCollision.getBody() && contact.getFixtureB().getBody() == enemy.getBody()) {
+                            if (pixelCollision.isOneWay()) {
+                                if (enemy.getBody().getLinearVelocity().y <= 0 && enemy.getBody().getPosition().y >= pixelCollision.getBody().getPosition().y + pixelCollision.getHeight())
+                                    // moving in the upward direction toward the ledge
+                                    contact.setEnabled(true);
+                                else
+                                    contact.setEnabled(false);
+                            }
                         }
                     }
                 }
@@ -462,8 +477,6 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
 
                 // set the projection matrix to the player's camera
                 spriteBatch.setProjectionMatrix(player.getCamera().combined);
-                // get the projection matrix for the debug renderer
-                //debugMatrix = player.getCamera().combined.scl(PIXELS_TO_METERS / SCREEN_RATIO);
 
                 // draw the map items
                 maps.render(spriteBatch);
@@ -539,8 +552,10 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                 spriteBatch.end();
             }
 
+            // get the projection matrix for the debug renderer
+            debugMatrix = player.getCamera().combined.scl(PIXELS_TO_METERS / SCREEN_RATIO);
             // draw the box2d bodies
-//            debugRenderer.render(physicsWorld, debugMatrix);
+            debugRenderer.render(physicsWorld, debugMatrix);
         }
         // ---------------- //
     }

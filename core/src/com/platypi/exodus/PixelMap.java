@@ -217,7 +217,7 @@ class PixelMap {
         );
     }
 
-    private void createEnemy(float x, float y, float width, float height, int enemyType, World physicsWorld) {
+    private void createEnemy(float x, float y, float width, float height, String enemyType, World physicsWorld) {
         // add an enemy to the list
         pixelEnemyList.add(
                 new PixelEnemy(x, y, width, height, enemyType, physicsWorld)
@@ -282,7 +282,7 @@ class PixelMap {
                         // create rectangle of the player start position
                         Rectangle enemyRectangle = ((RectangleMapObject) worldObjects).getRectangle();
                         // set the position
-                        createEnemy(enemyRectangle.x, enemyRectangle.y, enemyRectangle.width, enemyRectangle.height, Integer.valueOf(String.valueOf(worldObjects.getProperties().get("type"))), physicsWorld);
+                        createEnemy(enemyRectangle.x, enemyRectangle.y, enemyRectangle.width, enemyRectangle.height, String.valueOf(worldObjects.getProperties().get("type")), physicsWorld);
                     }
                 }
             }
@@ -335,7 +335,7 @@ class PixelMap {
         for (PixelPuzzleWall puzzleWall : pixelPuzzleWallList)
             puzzleWall.getSprite().getTexture().dispose();
         for (PixelEnemy enemy : pixelEnemyList)
-            enemy.getSprite().getTexture().dispose();
+            enemy.dispose();
     }
 
 }

@@ -13,22 +13,26 @@ import static com.platypi.exodus.PixelGame.SCREEN_RATIO;
 class PixelEnemy {
 
     private Sprite enemySprite;
+    private float animationCount;
+
+    private int dead;
+    private boolean showDeathAnimation;
 
     private Body body;
 
     private boolean moveRight;
 
-    private float width, height;
+    private int width, height;
 
-    PixelEnemy(float x, float y, float width, float height, int enemyType, World physicsWorld) {
+    PixelEnemy(float x, float y, float width, float height, String enemyType, World physicsWorld) {
         // set the width and height
-        height = 8;
-        width = 8;
+        this.height = (int)height;
+        this.width = (int)width;
         // set the sprite of the puzzle box
-        enemySprite = new Sprite(new Texture(Gdx.files.internal("Images/Enemies/enemytest.png")));
-        // set the enemy sprite if given
-        if (enemyType == 1)
-            enemySprite = new Sprite(new Texture(Gdx.files.internal("Images/Enemies/enemytest.png")));
+        enemySprite = new Sprite(new Texture(Gdx.files.internal("Images/Enemies/enemy" + enemyType + ".png")));
+        // region
+        enemySprite.setSize(width, height);
+        enemySprite.setRegion(0, 0, width, height);
         // set the position
         enemySprite.setPosition(x, y);
         // set any pixel coordinates to world coordinates
@@ -50,39 +54,82 @@ class PixelEnemy {
         body.createFixture(fixtureDef);             // create the fixture definition to the body
         body.setFixedRotation(true);                // fixed rotation
 
+        // back and forth sensor and killer sensor
         shape = new PolygonShape();
-        shape.setAsBox(width / 2f, height / 4f);
-        fixtureDef = new FixtureDef();
-        fixtureDef.shape    = shape;
-        fixtureDef.friction = 3f;
-        fixtureDef.density  = 3f;
-        body.createFixture(fixtureDef);
-
-        shape = new PolygonShape();
-        shape.setAsBox((enemySprite.getWidth()) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (1f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
-                new Vector2(0 / PIXELS_TO_METERS * SCREEN_RATIO, (enemySprite.getHeight() / 2 - (1 / 2f)) / PIXELS_TO_METERS * SCREEN_RATIO), 0);
+        shape.setAsBox(width / 2f, height / 2.5f);
         fixtureDef = new FixtureDef();
         fixtureDef.shape    = shape;
         fixtureDef.isSensor = true;
         body.createFixture(fixtureDef);
 
-        shape.dispose();                            // dispose of what you can
+        // player kill sensor
+        shape = new PolygonShape();
+        shape.setAsBox((enemySprite.getWidth()) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (1f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
+                new Vector2(0 / PIXELS_TO_METERS * SCREEN_RATIO, (enemySprite.getHeight() / 2 - (.25f)) / PIXELS_TO_METERS * SCREEN_RATIO), 0);
+        fixtureDef = new FixtureDef();
+        fixtureDef.shape    = shape;
+        fixtureDef.isSensor = true;
+        body.createFixture(fixtureDef);
+
+        shape.dispose(); // dispose of what you can
 
         moveRight = true;
+        dead = 0;
+        showDeathAnimation = false;
     }
 
     void update() {
+        enemySprite.setRegion(width * (int)animationCount, height * dead, width, height);
         enemySprite.setPosition(body.getPosition().x * PIXELS_TO_METERS / SCREEN_RATIO - (enemySprite.getWidth() / 2),
                 body.getPosition().y * PIXELS_TO_METERS / SCREEN_RATIO  - (enemySprite.getHeight() / 2));
 
+        if (moveRight)
+            enemySprite.setFlip(true, false);
+        else
+            enemySprite.setFlip(false, false);
+
+        checkDead();
         moveEnemy();
     }
 
-    private void moveEnemy() {
-        if (moveRight)
-            body.setLinearVelocity(8, 0);
+    private void checkDead() {
+        if (dead == 1) {
+            body.setActive(false);
+            showDeathAnimation = true;
+        }
         else
-            body.setLinearVelocity(-8, 0);
+            body.setActive(true);
+    }
+
+    private void moveEnemy() {
+        if (dead == 0) {
+            if (moveRight)
+                body.setLinearVelocity(8, 0);
+            else
+                body.setLinearVelocity(-8, 0);
+
+            animationCount += .05f;
+            if (animationCount >= 2)
+                animationCount = 0;
+        } else {
+            if (showDeathAnimation) {
+                animationCount += .2f;
+                if (animationCount >= 3) {
+                    animationCount = 2;
+                    showDeathAnimation = false;
+                }
+            }
+        }
+    }
+
+    void setDead(boolean dead) {
+        if (dead) {
+            this.dead = 1;
+            showDeathAnimation = true;
+            animationCount = 0;
+        }
+        else
+            this.dead = 0;
     }
 
     void render(SpriteBatch spriteBatch) {
@@ -98,4 +145,8 @@ class PixelEnemy {
     Body getBody() { return body; }
 
     Sprite getSprite() { return enemySprite; }
+
+    void dispose() {
+        enemySprite.getTexture().dispose();
+    }
 }

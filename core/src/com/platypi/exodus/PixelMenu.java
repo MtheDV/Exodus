@@ -437,8 +437,10 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        if (!worldPick)
+        if (!worldPick) {
             worldSpinToLevel = true;
+            worldDestinationsPick = 0;
+        }
         else {// check each button if the mouse is in each
             if ((mousePos.x >= backArrow.getX() && mousePos.x <= backArrow.getX() + backArrow.getWidth()) && (mousePos.y >= backArrow.getY() && mousePos.y <= backArrow.getY() + backArrow.getHeight())) {
                 // go back to menu
