@@ -175,7 +175,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                     worlds.getWorld(i).setUnlocked(true);
 
         // reset the selected level
-        PixelLevels.levelSelected = 0;
+        PixelLevels.levelSelected = 1;
 
         // gesture detector
         gestureDetector = new GestureDetector(this);
