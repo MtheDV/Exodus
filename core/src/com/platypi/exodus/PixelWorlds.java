@@ -2,7 +2,7 @@ package com.platypi.exodus;
 
 import java.util.ArrayList;
 
-class PixelWorlds {
+class  PixelWorlds {
 
     private ArrayList<PixelLevelData> worldLevels;
 
@@ -28,5 +28,4 @@ class PixelWorlds {
             worlds.dispose();
         }
     }
-
 }

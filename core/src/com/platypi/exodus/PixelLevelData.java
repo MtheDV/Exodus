@@ -14,23 +14,40 @@ class PixelLevelData {
     private int totalLevels;
     private int completedLevels;
 
+    private boolean unlocked;
+
     PixelLevelData(int world) {
         levels = new ArrayList<Level>();
+
+        if (world == 0)
+            unlocked = true;
+        else
+            unlocked = false;
 
         // add levels based on world
         switch (world + 1) {
             case 1:
                 for (int i = 0; i < 3; i++) {
-                    levels.add(
-                            new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1)
-                    );
+                    if (i == 0)
+                        levels.add(
+                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, true)
+                        );
+                    else
+                        levels.add(
+                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, false)
+                        );
                 }
                 break;
             case 2:
                 for (int i = 0; i < 3; i++) {
-                    levels.add(
-                            new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1)
-                    );
+                    if (i == 0)
+                        levels.add(
+                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, true)
+                        );
+                    else
+                        levels.add(
+                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, false)
+                        );
                 }
                 break;
 
@@ -54,6 +71,11 @@ class PixelLevelData {
 
     int getCompletedLevels() { return completedLevels; }
     int getTotalLevels() { return totalLevels; }
+
+    void addCompletedLevel() { completedLevels++; }
+
+    boolean isUnlocked() { return unlocked; }
+    void setUnlocked(boolean unlocked) { this.unlocked = unlocked; }
 
     Texture getLevelSelectBackground() { return levelSelectBackground; }
 

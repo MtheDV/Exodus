@@ -436,11 +436,14 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         // check if the next level is available, then go to it
                         if (PixelLevels.levelSelected < PixelMenu.worlds.getWorld(PixelLevels.world).size()) {
                             PixelLevels.levelSelected++; // move to next level
+                            PixelMenu.worlds.getWorld(PixelLevels.world).getLevel(PixelLevels.levelSelected).setUnlocked(true);
+                            PixelMenu.worlds.getWorld(PixelLevels.world).addCompletedLevel();
                             superGame.setScreen(new PixelGame(this.superGame));
                             this.dispose();
                         } else {
                             // go back to the menu
                             superGame.setScreen(new PixelLevels(this.superGame, PixelLevels.world));
+                            PixelMenu.worlds.getWorld(PixelLevels.world).addCompletedLevel();
                             this.dispose();
                         }
                         return;
@@ -553,9 +556,9 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
             }
 
             // get the projection matrix for the debug renderer
-            debugMatrix = player.getCamera().combined.scl(PIXELS_TO_METERS / SCREEN_RATIO);
-            // draw the box2d bodies
-            debugRenderer.render(physicsWorld, debugMatrix);
+//            debugMatrix = player.getCamera().combined.scl(PIXELS_TO_METERS / SCREEN_RATIO);
+//            // draw the box2d bodies
+//            debugRenderer.render(physicsWorld, debugMatrix);
         }
         // ---------------- //
     }

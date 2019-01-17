@@ -49,6 +49,12 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
     // level selected
     static int levelSelected = 1;
 
+    // level locked
+    private Sprite lock;
+    private boolean shakeLock;
+    private int shakeCounter;
+    private boolean shakeUp;
+
     // transition
     private PixelTransition transitioner;
     private boolean fadedIn;
@@ -150,6 +156,12 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
         backArrow.setRegion(0, 0, 16, 16);
         backArrow.setPosition(6, guiCamera.viewportHeight - backArrow.getHeight() - 4);
 
+        // lock
+        lock = new Sprite(new Texture(Gdx.files.internal("Images/GUI/lock.png")));
+        lock.setScale(2);
+        shakeLock = false;
+        shakeUp = true;
+
         // mouse down
         mouseKeyDown = true;
 
@@ -210,6 +222,30 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
                     selectAlpha2 = 0;
                     selectAlphaIn2 = true;
                     selectAlphaInOut = true;
+                }
+            }
+
+            // shake the lock if locked
+            if (shakeLock) {
+                if (shakeUp)
+                    lock.setRotation(lock.getRotation() + 1f);
+                else
+                    lock.setRotation(lock.getRotation() - 1f);
+
+                if (lock.getRotation() > 3f) {
+                    shakeUp = false;
+                    shakeCounter++;
+                }
+
+                if (lock.getRotation() < -3f) {
+                    shakeUp = true;
+                    shakeCounter++;
+                }
+
+                if (shakeCounter >= 6) {
+                    lock.setRotation(0);
+                    shakeLock = false;
+                    shakeCounter = 0;
                 }
             }
 
@@ -320,6 +356,14 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
             // draw the player animation
             playerAnimation.draw(spriteBatch);
 
+            // locked levels button
+            for (int i = 0; i < PixelMenu.worlds.getWorld(world).size(); i++) {
+                if (!PixelMenu.worlds.getWorld(world).getLevel(i + 1).isUnlocked()) {
+                    lock.setPosition((guiCamera.viewportWidth / 2 - lock.getWidth() / 2) + scrollDestinations[i] + scrollCounter, guiCamera.viewportHeight / 2 - lock.getHeight() / 2);
+                    lock.draw(spriteBatch);
+                }
+            }
+
             // set the projection matrix to the font camera
             spriteBatch.setProjectionMatrix(fontCamera.combined);
 
@@ -330,7 +374,10 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
             fontSmall.setColor(1, 1, 1, selectAlpha);
             fontSmall.draw(spriteBatch, "SWIPE LEFT OR RIGHT", 0, 70, fontCamera.viewportWidth, Align.center, false);
             fontSmall.setColor(1, 1, 1, selectAlpha2);
-            fontSmall.draw(spriteBatch, "TAP TO BEGIN", 0, 70, fontCamera.viewportWidth, Align.center, false);
+            if (PixelMenu.worlds.getWorld(world).getLevel(levelSelected).isUnlocked())
+                fontSmall.draw(spriteBatch, "TAP TO BEGIN", 0, 70, fontCamera.viewportWidth, Align.center, false);
+            else
+                fontSmall.draw(spriteBatch, "LEVEL LOCKED", 0, 70, fontCamera.viewportWidth, Align.center, false);
 
             // set the projection matrix to the back to the gui for the transitions
             spriteBatch.setProjectionMatrix(guiCamera.combined);
@@ -376,6 +423,7 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
         backArrow.getTexture().dispose();
         black.getTexture().dispose();
         transitioner.dispose();
+        lock.getTexture().dispose();
     }
 
     // GESTURES //
@@ -403,7 +451,11 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
             backToMenu = true;
         } else {
             // new level
-            newLevel = true;
+            if (PixelMenu.worlds.getWorld(world).getLevel(levelSelected).isUnlocked())
+                newLevel = true;
+            else {
+                shakeLock = true;
+            }
         }
 
         return false;

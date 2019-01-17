@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 /*
- * TODO: CREATE A BETTER MORE DETAILED WORLD, MORE WORLDS, LOCK THE LEVELS THAT AREN'T AVAILABLE
+ * TODO: CREATE A BETTER MORE DETAILED WORLD, MORE WORLDS
  */
 
 class PixelMenu implements Screen, GestureDetector.GestureListener {
@@ -32,6 +32,10 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
     // back button
     private Sprite backArrow;
+
+    // lock
+    private Sprite lock;
+    private float showLevels;
 
     // world sprite transition elements
     private float worldAngle;
@@ -124,6 +128,12 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         worldSprite.setCenter(worldSprite.getWidth() / 2, worldSprite.getHeight() / 2);
         worldSprite.setPosition(guiCamera.viewportWidth / 2 - worldSprite.getWidth() / 2, -worldSprite.getHeight() / 2);
 
+        // lock
+        lock = new Sprite(new Texture(Gdx.files.internal("Images/GUI/lock.png")));
+        lock.setPosition(guiCamera.viewportWidth / 2 - lock.getWidth() / 2, guiCamera.viewportHeight / 2 - lock.getHeight() / 2);
+        lock.setOrigin(lock.getWidth() / 2, -worldSprite.getOriginY());
+        showLevels = 1;
+
         starBackground = new Sprite(new Texture(Gdx.files.internal("Images/Title/starbackground.png")));
         starBackground.setPosition(0, 0);
 
@@ -157,6 +167,15 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         exitScreen = false;
         moveToNearestWorld = false;
         backToMenu = false;
+
+        // unlock worlds
+        for (int i = 0; i < worlds.getTotalWorlds(); i++)
+            if (i != 0)
+                if (worlds.getWorld(i - 1).isUnlocked() && worlds.getWorld(i - 1).getCompletedLevels() == worlds.getWorld(i - 1).getTotalLevels())
+                    worlds.getWorld(i).setUnlocked(true);
+
+        // reset the selected level
+        PixelLevels.levelSelected = 0;
 
         // gesture detector
         gestureDetector = new GestureDetector(this);
@@ -209,10 +228,18 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             if (worldGrow) {
                 if (worldSprite.getScaleX() < worldUpWidth)
                     worldSprite.setScale(worldSprite.getScaleX() + .01f);
+                if (showLevels > 0)
+                    showLevels -= .1f;
+                else
+                    showLevels = 0;
             }
             else {
                 if (worldSprite.getScaleX() > worldDownWidth)
                     worldSprite.setScale(worldSprite.getScaleX() - .01f);
+                if (showLevels < 1)
+                    showLevels += .1f;
+                else
+                    showLevels = 1;
             }
 
             // move world up and down
@@ -339,6 +366,16 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             // draw the world
             worldSprite.draw(spriteBatch);
 
+            // lock
+            if (worldPick) {
+                for (int i = 0; i < worlds.getTotalWorlds(); i++) {
+                    if (!worlds.getWorld(i).isUnlocked()) {
+                        lock.setRotation(worldAngle - worldAngleDestinations[i]);
+                        lock.draw(spriteBatch);
+                    }
+                }
+            }
+
             // draw black bars
             black.setPosition(0, 0);
             black.draw(spriteBatch);
@@ -362,11 +399,14 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                 fontSmall.draw(spriteBatch, "TAP TO START", 0, 50, fontCamera.viewportWidth, Align.center, false);
             }
             else {
+                fontLarge.setColor(1, 1, 1, showLevels);
                 // completed levels
                 if (worldDestinationsPick < worlds.getTotalWorlds())
-                    fontLarge.draw(spriteBatch, worlds.getWorld(worldDestinationsPick).getCompletedLevels() + "/" + worlds.getWorld(worldDestinationsPick).getTotalLevels(),
-                            0, fontCamera.viewportHeight - 150, fontCamera.viewportWidth, Align.center, false);
+                    if (worlds.getWorld(worldDestinationsPick).isUnlocked())
+                        fontLarge.draw(spriteBatch, worlds.getWorld(worldDestinationsPick).getCompletedLevels() + "/" + worlds.getWorld(worldDestinationsPick).getTotalLevels(),
+                                0, fontCamera.viewportHeight - 150, fontCamera.viewportWidth, Align.center, false);
 
+                fontLarge.setColor(1, 1, 1, 1);
                 // text inside the black bars
                 fontLarge.draw(spriteBatch, "WORLD " + (worldDestinationsPick + 1), 0, fontCamera.viewportHeight - 35, fontCamera.viewportWidth, Align.center, false);
                 fontSmall.draw(spriteBatch, "SELECT A WORLD", 0, 60, fontCamera.viewportWidth, Align.center, false);
@@ -447,7 +487,8 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                 worldPick = false;
                 backToMenu = true;
             } else {
-                exitScreen = true;
+                if (worlds.getWorld(worldDestinationsPick).isUnlocked())
+                    exitScreen = true;
             }
         }
         return false;
