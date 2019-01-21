@@ -272,6 +272,10 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
         });
         // WORLD COLLISIONS //
 
+        // save the current completed levels
+        PixelMenu.worlds.write(PixelMenu.worldPrefs);
+        PixelMenu.worldPrefs.flush();
+
         // set gesture detector
         gestureDetector = new GestureDetector(this);
     }
@@ -435,15 +439,23 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                     if (fadedIn) {
                         // check if the next level is available, then go to it
                         if (PixelLevels.levelSelected < PixelMenu.worlds.getWorld(PixelLevels.world).size()) {
+                            System.out.println("ATTEMPT SCORE");
+                            if (PixelLevels.levelSelected + 1 <= PixelMenu.worlds.getWorld(PixelLevels.world).getTotalLevels()) {
+                                System.out.println("IN RANGE");
+                                if (!PixelMenu.worlds.getWorld(PixelLevels.world).getLevel(PixelLevels.levelSelected + 1).isUnlocked()) {
+                                    System.out.println("SCORE++ AVAIL");
+                                    PixelMenu.worlds.getWorld(PixelLevels.world).addCompletedLevel();
+                                }
+                            }
                             PixelLevels.levelSelected++; // move to next level
                             PixelMenu.worlds.getWorld(PixelLevels.world).getLevel(PixelLevels.levelSelected).setUnlocked(true);
-                            PixelMenu.worlds.getWorld(PixelLevels.world).addCompletedLevel();
                             superGame.setScreen(new PixelGame(this.superGame));
                             this.dispose();
                         } else {
+                            // add the score for completing the level
+                            PixelMenu.worlds.getWorld(PixelLevels.world).addCompletedLevel();
                             // go back to the menu
                             superGame.setScreen(new PixelLevels(this.superGame, PixelLevels.world));
-                            PixelMenu.worlds.getWorld(PixelLevels.world).addCompletedLevel();
                             this.dispose();
                         }
                         return;

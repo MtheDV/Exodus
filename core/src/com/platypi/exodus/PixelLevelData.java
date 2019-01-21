@@ -1,6 +1,7 @@
 package com.platypi.exodus;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 
 import java.util.ArrayList;
@@ -19,10 +20,7 @@ class PixelLevelData {
     PixelLevelData(int world) {
         levels = new ArrayList<Level>();
 
-        if (world == 0)
-            unlocked = true;
-        else
-            unlocked = false;
+        unlocked = (world == 0);
 
         // add levels based on world
         switch (world + 1) {
@@ -72,7 +70,15 @@ class PixelLevelData {
     int getCompletedLevels() { return completedLevels; }
     int getTotalLevels() { return totalLevels; }
 
-    void addCompletedLevel() { completedLevels++; }
+    private void setCompletedLevels(int completedLevels) { this.completedLevels = completedLevels; }
+
+    void addCompletedLevel() {
+        System.out.println("SCORE++");
+        completedLevels++;
+
+        if (completedLevels >= levels.size())
+            completedLevels = levels.size();
+    }
 
     boolean isUnlocked() { return unlocked; }
     void setUnlocked(boolean unlocked) { this.unlocked = unlocked; }
@@ -80,6 +86,21 @@ class PixelLevelData {
     Texture getLevelSelectBackground() { return levelSelectBackground; }
 
     int size() { return levels.size(); }
+
+    void read(Preferences prefs, int worldID) {
+        setCompletedLevels(prefs.getInteger("completedLevels" + worldID));
+        for (int i = 0; i < levels.size(); i++) {
+            if (i + 1 <= prefs.getInteger("completedLevels" + worldID)) {
+                levels.get(i).setUnlocked(true);
+                if (i + 2 < levels.size())
+                    levels.get(i + 1).setUnlocked(true);
+            }
+        }
+    }
+
+    void write(Preferences prefs, int worldID) {
+        prefs.putInteger("completedLevels" + worldID, getCompletedLevels());
+    }
 
     void dispose() {
         levelSelectBackground.dispose();

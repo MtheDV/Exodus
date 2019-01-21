@@ -22,6 +22,9 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 class PixelMenu implements Screen, GestureDetector.GestureListener {
 
+    // saving and loading level data
+    static Preferences worldPrefs = Gdx.app.getPreferences("World Prefs");
+
     // sprite batch
     private SpriteBatch spriteBatch;
 
@@ -82,7 +85,8 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
     private boolean exitScreen;
 
     // worlds
-    static final PixelWorlds worlds = new PixelWorlds();
+    static PixelWorlds worlds = new PixelWorlds();
+    private static boolean loadedWorld = false;
 
     // hold the game class to call other screens
     private Game superGame;
@@ -93,6 +97,12 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         // initialize the game class
         super();
         this.superGame = superGame;
+
+        // load world data if the first time loading the game
+        while (!loadedWorld) {
+            worlds.read(worldPrefs);
+            loadedWorld = true;
+        }
 
         // initialize the sprite batch
         spriteBatch = new SpriteBatch();
@@ -117,6 +127,9 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         fontSmall.getData().setScale(1.5f);
         fontParameter.size = 16;
         fontParameter.color = Color.WHITE;
+        fontParameter.borderGamma = 0f;
+        fontParameter.borderWidth = 1f;
+        fontParameter.borderColor = Color.BLACK;
         fontLarge = fontGenerator.generateFont(fontParameter);
         fontLarge.getData().setScale(2.5f);
 
@@ -176,6 +189,10 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
         // reset the selected level
         PixelLevels.levelSelected = 1;
+
+        // save the game state
+        worlds.write(worldPrefs);
+        worldPrefs.flush();
 
         // gesture detector
         gestureDetector = new GestureDetector(this);
@@ -456,6 +473,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         title.dispose();
         transitioner.dispose();
         fontGenerator.dispose();
+        lock.getTexture().dispose();
     }
 
     @Override
