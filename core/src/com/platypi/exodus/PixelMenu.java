@@ -13,6 +13,7 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -32,6 +33,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
     private Sprite worldSprite;
     private Sprite starBackground;
     private Sprite black;
+    private Array<PixelCloud> clouds;
 
     // back button
     private Sprite backArrow;
@@ -156,6 +158,12 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         else
             black.setSize(guiCamera.viewportWidth, 20);
 
+        // clouds
+        clouds = new Array<PixelCloud>();
+        for (int i = 0; i < (int)(Math.random() * 5 + 5); i++) {
+            clouds.add(new PixelCloud(guiCamera, black, false));
+        }
+
         // back button
         backArrow = new Sprite(new Texture(Gdx.files.internal("Images/GUI/back.png")));
         backArrow.setSize(16, 16);
@@ -214,6 +222,21 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             if (!Gdx.input.isTouched()) {
                 worldGrow = false;
                 backArrow.setRegion(0, 0, 16, 16);
+            }
+
+            // update clouds
+            for (PixelCloud cloud : clouds) {
+                cloud.update();
+
+                if (cloud.getCloud().getX() > guiCamera.viewportWidth) {
+                    clouds.removeValue(cloud, true);
+                }
+                else if (cloud.getCloud().getX() + cloud.getCloud().getWidth() < 0)
+                    clouds.removeValue(cloud, true);
+            }
+            // add clouds at random
+            if ((int)(Math.random() * 60) == 0) {
+                clouds.add(new PixelCloud(guiCamera, black, true));
             }
 
             // update world angle
@@ -380,8 +403,18 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             // star background
             starBackground.draw(spriteBatch);
 
+            // clouds behind the world
+            for (PixelCloud cloud : clouds)
+                if (!cloud.isInFrontOfWorld())
+                    cloud.render(spriteBatch);
+
             // draw the world
             worldSprite.draw(spriteBatch);
+
+            // clouds in front of the world
+            for (PixelCloud cloud : clouds)
+                if (cloud.isInFrontOfWorld())
+                    cloud.render(spriteBatch);
 
             // lock
             if (worldPick) {
@@ -474,6 +507,8 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         transitioner.dispose();
         fontGenerator.dispose();
         lock.getTexture().dispose();
+        for (PixelCloud cloud : clouds)
+            cloud.dispose();
     }
 
     @Override
