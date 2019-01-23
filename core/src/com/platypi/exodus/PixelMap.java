@@ -31,6 +31,7 @@ class PixelMap {
     private ArrayList<PixelSign> pixelSignList;
     private ArrayList<PixelTrap> pixelTrapList;
     private ArrayList<PixelEnemy> pixelEnemyList;
+    private ArrayList<PixelBoss> pixelBossList;
 
     private Texture background;
     private float backgroundX;
@@ -41,7 +42,7 @@ class PixelMap {
     private PixelEnemy removeEnemyID;
 
     private enum Types {
-        WALL, PUZZLEBOX, PUZZLEBUTTON, PUZZLEWALL, PLAYERSTART, PLAYEREND, SIGN, TRAP, ENEMY
+        WALL, PUZZLEBOX, PUZZLEBUTTON, PUZZLEWALL, PLAYERSTART, PLAYEREND, SIGN, TRAP, ENEMY, BOSS
     }
 
     PixelMap() {
@@ -54,6 +55,7 @@ class PixelMap {
         pixelSignList          = new ArrayList<PixelSign>();
         pixelTrapList          = new ArrayList<PixelTrap>();
         pixelEnemyList         = new ArrayList<PixelEnemy>();
+        pixelBossList          = new ArrayList<PixelBoss>();
 
         // set the background
         background  = new Texture(Gdx.files.internal("Images/Tilemap/background.png"));
@@ -77,6 +79,10 @@ class PixelMap {
         // update the enemies
         for (PixelEnemy enemy : pixelEnemyList)
             enemy.update();
+
+        // update the bosses
+        for (PixelBoss boss : pixelBossList)
+            boss.update(playerX, playerY);
 
         // loop through the buttons and the walls to find id's and set active or not
         for (int i = 0; i < pixelPuzzleButtonsList.size(); i++) {
@@ -116,6 +122,8 @@ class PixelMap {
             puzzleWall.render(spriteBatch);
         for (PixelEnemy enemy : pixelEnemyList)
             enemy.render(spriteBatch);
+        for (PixelBoss boss : pixelBossList)
+            boss.render(spriteBatch);
     }
 
     void renderFonts(SpriteBatch spriteBatch, OrthographicCamera camera) {
@@ -140,6 +148,7 @@ class PixelMap {
         pixelSignList.clear();
         pixelTrapList.clear();
         pixelEnemyList.clear();
+        pixelBossList.clear();
 
         // set the map
         mainMap = newMap;
@@ -166,6 +175,8 @@ class PixelMap {
         getLayerObjects("traps", physicsWorld, Types.TRAP);
         // get the enemy properties
         getLayerObjects("enemies", physicsWorld, Types.ENEMY);
+        // get the boss properties
+        getLayerObjects("boss spawn", physicsWorld, Types.BOSS);
     }
 
     private void createBox(float x, float y, float width, float height, World physicsWorld, boolean isOneWay) {
@@ -221,6 +232,13 @@ class PixelMap {
         // add an enemy to the list
         pixelEnemyList.add(
                 new PixelEnemy(x, y, width, height, enemyType, physicsWorld)
+        );
+    }
+
+    private void createBoss(float x, float y, int bossID, World physicsWorld) {
+        // add an enemy to the list
+        pixelBossList.add(
+                new PixelBoss(x, y, bossID, physicsWorld)
         );
     }
 
@@ -284,6 +302,12 @@ class PixelMap {
                         // set the position
                         createEnemy(enemyRectangle.x, enemyRectangle.y, enemyRectangle.width, enemyRectangle.height, String.valueOf(worldObjects.getProperties().get("type")), physicsWorld);
                     }
+                    else if (type == Types.BOSS) {
+                        // create rectangle of the player start position
+                        Rectangle bossRectangle = ((RectangleMapObject) worldObjects).getRectangle();
+                        // set the position
+                        createBoss(bossRectangle.x, bossRectangle.y, Integer.valueOf(String.valueOf(worldObjects.getProperties().get("ID"))), physicsWorld);
+                    }
                 }
             }
 
@@ -336,6 +360,8 @@ class PixelMap {
             puzzleWall.getSprite().getTexture().dispose();
         for (PixelEnemy enemy : pixelEnemyList)
             enemy.dispose();
+        for (PixelBoss boss : pixelBossList)
+            boss.dispose();
     }
 
 }

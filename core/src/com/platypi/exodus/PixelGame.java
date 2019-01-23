@@ -568,9 +568,9 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
             }
 
             // get the projection matrix for the debug renderer
-//            debugMatrix = player.getCamera().combined.scl(PIXELS_TO_METERS / SCREEN_RATIO);
-//            // draw the box2d bodies
-//            debugRenderer.render(physicsWorld, debugMatrix);
+            debugMatrix = player.getCamera().combined.scl(PIXELS_TO_METERS / SCREEN_RATIO);
+            // draw the box2d bodies
+            debugRenderer.render(physicsWorld, debugMatrix);
         }
         // ---------------- //
     }
