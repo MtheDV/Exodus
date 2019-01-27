@@ -73,7 +73,6 @@ class PixelLevelData {
     private void setCompletedLevels(int completedLevels) { this.completedLevels = completedLevels; }
 
     void addCompletedLevel() {
-        System.out.println("SCORE++");
         completedLevels++;
 
         if (completedLevels >= levels.size())

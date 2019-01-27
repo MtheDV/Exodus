@@ -32,17 +32,20 @@ class PixelMap {
     private ArrayList<PixelTrap> pixelTrapList;
     private ArrayList<PixelEnemy> pixelEnemyList;
     private ArrayList<PixelBoss> pixelBossList;
+    private PixelBossTrigger bossTrigger;
 
     private Texture background;
     private float backgroundX;
     private float backgroundY;
+
+    private boolean triggerBossEvent;
 
     private float playerStartX, playerStartY;
 
     private PixelEnemy removeEnemyID;
 
     private enum Types {
-        WALL, PUZZLEBOX, PUZZLEBUTTON, PUZZLEWALL, PLAYERSTART, PLAYEREND, SIGN, TRAP, ENEMY, BOSS
+        WALL, PUZZLEBOX, PUZZLEBUTTON, PUZZLEWALL, PLAYERSTART, PLAYEREND, SIGN, TRAP, ENEMY, BOSS, BOSSTRIGGER
     }
 
     PixelMap() {
@@ -61,9 +64,12 @@ class PixelMap {
         background  = new Texture(Gdx.files.internal("Images/Tilemap/background.png"));
         backgroundX = 0;
         backgroundY = 0;
+
+        // boss event
+        triggerBossEvent = false;
     }
 
-    void update(float playerX, float playerY, World physicsWorld) {
+    void update(float playerX, float playerY, World physicsWorld, PixelPlayer player) {
         // update the background so it scrolls slowly
         backgroundX = -playerX / 20f;
         backgroundY = -playerY / 35f;
@@ -82,7 +88,7 @@ class PixelMap {
 
         // update the bosses
         for (PixelBoss boss : pixelBossList)
-            boss.update(playerX, playerY);
+            boss.update(playerX, playerY, physicsWorld);
 
         // loop through the buttons and the walls to find id's and set active or not
         for (int i = 0; i < pixelPuzzleButtonsList.size(); i++) {
@@ -94,6 +100,19 @@ class PixelMap {
                         pixelPuzzleWallList.get(i).setWallOn(true);
                 }
             }
+        }
+
+        // spawn the boss if the event went off
+        if (triggerBossEvent) {
+            // get the boss properties
+            getLayerObjects("boss spawn", physicsWorld, Types.BOSS);
+            // shake the screen
+            player.shakeCamera(2500, 3);
+            player.zoomCamera(1.5f);
+            // remove the event trigger
+            physicsWorld.destroyBody(bossTrigger.getBody());
+            // set the event trigger
+            triggerBossEvent = false;
         }
 
         removeEnemies(physicsWorld);
@@ -175,8 +194,8 @@ class PixelMap {
         getLayerObjects("traps", physicsWorld, Types.TRAP);
         // get the enemy properties
         getLayerObjects("enemies", physicsWorld, Types.ENEMY);
-        // get the boss properties
-        getLayerObjects("boss spawn", physicsWorld, Types.BOSS);
+        // get the boss event properties
+        getLayerObjects("boss event trigger", physicsWorld, Types.BOSSTRIGGER);
     }
 
     private void createBox(float x, float y, float width, float height, World physicsWorld, boolean isOneWay) {
@@ -237,9 +256,15 @@ class PixelMap {
 
     private void createBoss(float x, float y, int bossID, World physicsWorld) {
         // add an enemy to the list
-        pixelBossList.add(
-                new PixelBoss(x, y, bossID, physicsWorld)
-        );
+        if (bossID == 1)
+            pixelBossList.add(
+                    new PixelBossSkeleton(x, y, physicsWorld)
+            );
+    }
+
+    private void createBossEvent(float x, float y, float width, float height, World physicsWorld) {
+        // create the body
+        bossTrigger = new PixelBossTrigger(x, y, width, height, physicsWorld);
     }
 
     private void getLayerObjects(String layerName, World physicsWorld, Types type) {
@@ -308,9 +333,14 @@ class PixelMap {
                         // set the position
                         createBoss(bossRectangle.x, bossRectangle.y, Integer.valueOf(String.valueOf(worldObjects.getProperties().get("ID"))), physicsWorld);
                     }
+                    else if (type == Types.BOSSTRIGGER) {
+                        // create rectangle of the player start position
+                        Rectangle bossTriggerRectangle = ((RectangleMapObject) worldObjects).getRectangle();
+                        // set the position
+                        createBossEvent(bossTriggerRectangle.x, bossTriggerRectangle.y, bossTriggerRectangle.width, bossTriggerRectangle.height, physicsWorld);
+                    }
                 }
             }
-
         }
     }
 
@@ -327,6 +357,8 @@ class PixelMap {
 
     float getPlayerStartX() { return  playerStartX; }
     float getPlayerStartY() { return  playerStartY; }
+
+    void triggerBossEvent() { triggerBossEvent = true; }
 
     PixelEnemy getRemoveEnemyID() { return removeEnemyID; }
 
@@ -349,6 +381,10 @@ class PixelMap {
     ArrayList<PixelTrap> getPixelTrapList() { return pixelTrapList; }
 
     ArrayList<PixelEnemy> getPixelEnemyList() { return pixelEnemyList; }
+
+    ArrayList<PixelBoss> getPixelBossList() { return  pixelBossList; }
+
+    PixelBossTrigger getBossTrigger() { return bossTrigger; }
 
     void dispose() {
         mainMap.dispose();

@@ -51,6 +51,11 @@ class PixelPlayer {
     // for moving the camera that follows at a delay, lerping a distance
     private float lerp;
 
+    // camera shake variables
+    private float shakeDuration;
+    private float shakeIntensity;
+    private float shakeTimer;
+
     // delta time
     private float delta;
 
@@ -158,6 +163,10 @@ class PixelPlayer {
         if (Gdx.input.isKeyPressed(Keys.D))
             move(Directions.RIGHT, 17);
 
+        // if g key is pressed shake screen
+        if (Gdx.input.isKeyJustPressed(Keys.G))
+            shakeCamera(360, 5);
+
         if ((Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.SPACE)) && !jumping)
             move(Directions.UP, 24);
     }
@@ -176,6 +185,15 @@ class PixelPlayer {
             camera.position.set(camera.position.x, camera.viewportHeight / 2, 0);
         if (camera.position.y + camera.viewportHeight / 2 >= mapProperties.get("height", Integer.class) * 8)
             camera.position.set(camera.position.x, mapProperties.get("height", Integer.class) * 8- camera.viewportHeight / 2, 0);
+
+        // shake camera if variables require
+        if (shakeTimer < shakeDuration) {
+            float x = (float) (Math.cos(Math.random() * 360) * 0.9f * shakeIntensity);
+            float y = (float) (Math.sin(Math.random() * 360) * 0.9f * shakeIntensity);
+            camera.translate(-x, -y);
+
+            shakeTimer += delta;
+        }
 
         // update the camera
         camera.update();
@@ -256,6 +274,16 @@ class PixelPlayer {
             body.setLinearVelocity(body.getLinearVelocity().x, 0);
             body.setLinearVelocity(body.getLinearVelocity().x, amount);
         }
+    }
+
+    void shakeCamera(float duration, float intensity) {
+        shakeTimer = 0;
+        shakeDuration = duration / 1000f;
+        shakeIntensity = intensity;
+    }
+
+    void zoomCamera(float zoom) {
+        camera.zoom = zoom;
     }
 
     void resetJumping() {

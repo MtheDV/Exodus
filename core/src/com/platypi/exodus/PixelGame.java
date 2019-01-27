@@ -21,8 +21,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 /*
  * TODO: ADD ENEMIES, CHANGE TEXTURE PACK, CREATE MORE LEVELS, BETTER TRANSITION ANIMATION, BETTER PAUSE MENU
- *
- * TODO: **SAVE STATES! SAVE WHEN THE USER LEAVES THE GAME, SAVE WHEN THE PLAYER LEAVES THE LEVEL, ETC...**
  */
 
 public class PixelGame implements Screen, GestureDetector.GestureListener {
@@ -207,8 +205,10 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         pixelSign.setFade(1);
                 for (PixelTrap pixelTrap : maps.getPixelTrapList())
                     if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == pixelTrap.getBody())
-                            || (contact.getFixtureA().getBody() == pixelTrap.getBody() && contact.getFixtureB().getBody() == player.getBody()))
+                            || (contact.getFixtureA().getBody() == pixelTrap.getBody() && contact.getFixtureB().getBody() == player.getBody())) {
                         resetLevel = true;
+                        player.shakeCamera(500, 1);
+                    }
                 for (PixelEnemy enemy : maps.getPixelEnemyList()) {
                     if ((contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) || contact.getFixtureB() == enemy.getBody().getFixtureList().get(1)))
                         enemy.changeDirection(!enemy.getDirection());
@@ -217,9 +217,25 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         if (player.getVelocityY() <= 0)
                             enemy.setDead(true);
                     else if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB() == enemy.getBody().getFixtureList().get(1))
-                            || (contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) && contact.getFixtureB().getBody() == player.getBody()))
+                            || (contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) && contact.getFixtureB().getBody() == player.getBody())) {
                         resetLevel = true;
+                        player.shakeCamera(500, 1);
+                    }
                 }
+                for (PixelBoss boss : maps.getPixelBossList()) {
+                    if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == boss.getBody())
+                            || (contact.getFixtureA().getBody() == boss.getBody() && contact.getFixtureB().getBody() == player.getBody()))
+                        resetLevel = true;
+                    if (boss instanceof PixelBossSkeleton)
+                        for (PixelBadBall fireBall : ((PixelBossSkeleton) boss).getFireBalls())
+                            if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == fireBall.getBody())
+                                    || (contact.getFixtureA().getBody() == fireBall.getBody() && contact.getFixtureB().getBody() == player.getBody()))
+                                resetLevel = true;
+                }
+                if (maps.getBossTrigger() != null)
+                    if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == maps.getBossTrigger().getBody())
+                            || (contact.getFixtureA().getBody() == maps.getBossTrigger().getBody() && contact.getFixtureB().getBody() == player.getBody()))
+                        maps.triggerBossEvent();
             }
 
             @Override
@@ -307,7 +323,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         player.update(maps.getMainMapProperties());
 
                     // update the map
-                    maps.update(player.getSprite().getX(), player.getSprite().getY(), physicsWorld);
+                    maps.update(player.getSprite().getX(), player.getSprite().getY(), physicsWorld, player);
 
                     if (Gdx.input.isKeyJustPressed(Input.Keys.P))
                         pause = true;
@@ -439,11 +455,8 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                     if (fadedIn) {
                         // check if the next level is available, then go to it
                         if (PixelLevels.levelSelected < PixelMenu.worlds.getWorld(PixelLevels.world).size()) {
-                            System.out.println("ATTEMPT SCORE");
                             if (PixelLevels.levelSelected + 1 <= PixelMenu.worlds.getWorld(PixelLevels.world).getTotalLevels()) {
-                                System.out.println("IN RANGE");
                                 if (!PixelMenu.worlds.getWorld(PixelLevels.world).getLevel(PixelLevels.levelSelected + 1).isUnlocked()) {
-                                    System.out.println("SCORE++ AVAIL");
                                     PixelMenu.worlds.getWorld(PixelLevels.world).addCompletedLevel();
                                 }
                             }
