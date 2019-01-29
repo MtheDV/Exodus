@@ -5,7 +5,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import static com.platypi.exodus.PixelGame.PIXELS_TO_METERS;
 import static com.platypi.exodus.PixelGame.SCREEN_RATIO;
 
-public class PixelExit {
+class PixelExit {
 
     private Body body;
 

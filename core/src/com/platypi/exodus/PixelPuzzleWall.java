@@ -18,11 +18,24 @@ public class PixelPuzzleWall {
 
     private int PUZZLEBUTTON_ID;
 
+    private float height, width;
+
     PixelPuzzleWall(float x, float y, float width, float height, World physicsWorld, int PUZZLEBUTTON_ID) {
         puzzleWall = new Sprite(new Texture(Gdx.files.internal("Images/Items/puzzlewall.png")));
         puzzleWall.setPosition(x, y);
-        puzzleWall.setSize(width + .1f, height + .1f);
         puzzleWall.setRegion(0, 0, 8, 8);
+        if (height > width) {
+            puzzleWall.setSize(height + .1f, width);
+            puzzleWall.setOriginCenter();
+            puzzleWall.setRotation(90f);
+        }
+        else {
+            puzzleWall.setSize(width + .1f, height + .1f);
+            puzzleWall.setOriginCenter();
+        }
+        // set the width and height
+        this.width  = width;
+        this.height = height;
         // set any pixel coordinates to world coordinates
         x  = x / PIXELS_TO_METERS * SCREEN_RATIO;
         y = y / PIXELS_TO_METERS * SCREEN_RATIO;

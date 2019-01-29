@@ -2,6 +2,7 @@ package com.platypi.exodus;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
 import static com.platypi.exodus.PixelGame.PIXELS_TO_METERS;
@@ -12,7 +13,8 @@ abstract class PixelBoss {
     private Sprite bossImage;
     private Body body;
 
-    PixelBoss() { }
+    private boolean destroy;
+    private boolean fullyDestroyed;
 
     PixelBoss(float x, float y, Sprite bossImage, World physicsWorld) {
         { // CREATING THE SPRITE
@@ -45,11 +47,26 @@ abstract class PixelBoss {
                 fixtureDef.isSensor = true;
                 // add the fixture definition to the body
                 body.createFixture(fixtureDef);
+                // create the top of the boss that gets stepped on
+                shape = new PolygonShape();
+                shape.setAsBox((bossImage.getWidth()) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (1f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
+                        new Vector2(0, (bossImage.getHeight() / 2) / PIXELS_TO_METERS * SCREEN_RATIO), 0);
+
+                // set the physics properties of the body
+                fixtureDef = new FixtureDef();
+                fixtureDef.shape      = shape;
+                fixtureDef.isSensor   = true;
+                // add the fixture definition to the body
+                body.createFixture(fixtureDef);
+
                 body.setFixedRotation(true);
                 body.setGravityScale(0);
                 // dispose of the shape
                 shape.dispose();
             }
+
+            destroy = false;
+            fullyDestroyed = false;
         }
     }
 
@@ -72,6 +89,12 @@ abstract class PixelBoss {
     void setBody(Body body) {
         this.body = body;
     }
+
+    void destroy() { destroy = true; }
+    void fullyDestroy() { fullyDestroyed = true; }
+
+    boolean isDestroyed() { return destroy; }
+    boolean fullyDestroyed() { return fullyDestroyed; }
 
     void dispose() {
         bossImage.getTexture().dispose();

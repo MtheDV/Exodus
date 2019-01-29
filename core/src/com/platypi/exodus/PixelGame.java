@@ -19,6 +19,8 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.Iterator;
+
 /*
  * TODO: ADD ENEMIES, CHANGE TEXTURE PACK, CREATE MORE LEVELS, BETTER TRANSITION ANIMATION, BETTER PAUSE MENU
  */
@@ -72,6 +74,9 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
     private float scrollBackground1;
     private float scrollBackground2;
 
+    // boss collision attribute
+    private boolean collideBoss;
+
     // physics world for collisions
     private World physicsWorld;
     // debug renderer
@@ -107,6 +112,9 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
         fadedIn = false;
         fadedOut = false;
         toLevelSelect = false;
+
+        // boss collision
+        collideBoss = true;
 
         // initialize the maps class
         maps = new PixelMap();
@@ -216,21 +224,37 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                             || (contact.getFixtureA() == enemy.getBody().getFixtureList().get(2) && contact.getFixtureB() == player.getBody().getFixtureList().get(1)))
                         if (player.getVelocityY() <= 0)
                             enemy.setDead(true);
-                    else if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB() == enemy.getBody().getFixtureList().get(1))
-                            || (contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) && contact.getFixtureB().getBody() == player.getBody())) {
-                        resetLevel = true;
-                        player.shakeCamera(500, 1);
-                    }
+                        else if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB() == enemy.getBody().getFixtureList().get(1))
+                                || (contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) && contact.getFixtureB().getBody() == player.getBody())) {
+                            resetLevel = true;
+                            player.shakeCamera(500, 1);
+                        }
                 }
                 for (PixelBoss boss : maps.getPixelBossList()) {
-                    if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == boss.getBody())
-                            || (contact.getFixtureA().getBody() == boss.getBody() && contact.getFixtureB().getBody() == player.getBody()))
-                        resetLevel = true;
-                    if (boss instanceof PixelBossSkeleton)
-                        for (PixelBadBall fireBall : ((PixelBossSkeleton) boss).getFireBalls())
-                            if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == fireBall.getBody())
-                                    || (contact.getFixtureA().getBody() == fireBall.getBody() && contact.getFixtureB().getBody() == player.getBody()))
-                                resetLevel = true;
+                    if (boss instanceof PixelBossSkeleton) {
+                        if (collideBoss)
+                            if (((PixelBossSkeleton) boss).getStages() == PixelBossSkeleton.Stages.FLY_AT_PLAYER
+                                    && ((PixelBossSkeleton) boss).getAction() == PixelBossSkeleton.Action.NORMAL)
+                                if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == boss.getBody())
+                                        || (contact.getFixtureA().getBody() == boss.getBody() && contact.getFixtureB().getBody() == player.getBody()))
+                                    resetLevel = true;
+                        if (((PixelBossSkeleton) boss).getStages() == PixelBossSkeleton.Stages.SHOOT_FIRE_BALLS
+                                && ((PixelBossSkeleton) boss).getAction() == PixelBossSkeleton.Action.NORMAL)
+                            if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB() == boss.getBody().getFixtureList().get(1))
+                                    || (contact.getFixtureA() == boss.getBody().getFixtureList().get(1) && contact.getFixtureB().getBody() == player.getBody())) {
+                                if (((PixelBossSkeleton) boss).getHealth() > 0) {
+                                    ((PixelBossSkeleton) boss).stageUP();
+                                    player.shakeCamera(700, 3);
+                                    ((PixelBossSkeleton) boss).setStages(PixelBossSkeleton.Stages.FLY_AT_PLAYER);
+                                    collideBoss = false;
+                                }
+                            }
+                        if (collideBoss)
+                            for (PixelBadBall fireBall : ((PixelBossSkeleton) boss).getFireBalls())
+                                if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == fireBall.getBody())
+                                        || (contact.getFixtureA().getBody() == fireBall.getBody() && contact.getFixtureB().getBody() == player.getBody()))
+                                    resetLevel = true;
+                    }
                 }
                 if (maps.getBossTrigger() != null)
                     if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == maps.getBossTrigger().getBody())
@@ -249,6 +273,10 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                     if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == pixelSign.getBody())
                             || (contact.getFixtureA().getBody() == pixelSign.getBody() && contact.getFixtureB().getBody() == player.getBody()))
                         pixelSign.setFade(-1);
+                for (PixelBoss boss : maps.getPixelBossList())
+                    if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == boss.getBody())
+                            || (contact.getFixtureA().getBody() == boss.getBody() && contact.getFixtureB().getBody() == player.getBody()))
+                        collideBoss = true;
             }
 
             @Override
@@ -324,6 +352,21 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
 
                     // update the map
                     maps.update(player.getSprite().getX(), player.getSprite().getY(), physicsWorld, player);
+
+                    // update the current boss
+                    Iterator<PixelBoss> bossIterator = maps.getPixelBossList().iterator();
+                    while (bossIterator.hasNext()) {
+                        PixelBoss boss = bossIterator.next();
+
+                        if (boss.isDestroyed()) {
+                            player.shakeCamera(1000, 5);
+                        }
+                        if (boss.fullyDestroyed()) {
+                            maps.createPuzzleBox(boss.getBossImage().getX() + boss.getBossImage().getWidth() / 2f - 4f,
+                                    boss.getBossImage().getY() + boss.getBossImage().getHeight() / 2 - 4f, physicsWorld);
+                            bossIterator.remove();
+                        }
+                    }
 
                     if (Gdx.input.isKeyJustPressed(Input.Keys.P))
                         pause = true;
@@ -581,9 +624,9 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
             }
 
             // get the projection matrix for the debug renderer
-            debugMatrix = player.getCamera().combined.scl(PIXELS_TO_METERS / SCREEN_RATIO);
+//            debugMatrix = player.getCamera().combined.scl(PIXELS_TO_METERS / SCREEN_RATIO);
             // draw the box2d bodies
-            debugRenderer.render(physicsWorld, debugMatrix);
+//            debugRenderer.render(physicsWorld, debugMatrix);
         }
         // ---------------- //
     }

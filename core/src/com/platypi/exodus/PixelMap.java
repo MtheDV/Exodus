@@ -108,7 +108,7 @@ class PixelMap {
             getLayerObjects("boss spawn", physicsWorld, Types.BOSS);
             // shake the screen
             player.shakeCamera(2500, 3);
-            player.zoomCamera(1.5f);
+//            player.zoomCamera(1.5f);
             // remove the event trigger
             physicsWorld.destroyBody(bossTrigger.getBody());
             // set the event trigger
@@ -205,7 +205,7 @@ class PixelMap {
         );
     }
 
-    private void createPuzzleBox(float x, float y, World physicsWorld) {
+    void createPuzzleBox(float x, float y, World physicsWorld) {
         // add the body to the list
         pixelPuzzleBoxList.add(
                 new PixelPuzzleBox(x, y, physicsWorld)

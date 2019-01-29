@@ -95,7 +95,6 @@ class PixelPlayer {
             shape = new PolygonShape();
             shape.setAsBox((sprite.getWidth() - .5f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (1f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
                     new Vector2(.05f / PIXELS_TO_METERS * SCREEN_RATIO, - (sprite.getHeight() / 2 - (1 / 2f)) / PIXELS_TO_METERS * SCREEN_RATIO), 0);
-
             // set the physics properties of the body
             fixtureDef = new FixtureDef();
             fixtureDef.shape      = shape;

@@ -14,11 +14,19 @@ class PixelBadBall {
     private float angle;
     private float speed;
 
+    private float fade;
+    private boolean goAway;
+    private boolean remove;
+
     PixelBadBall(float x, float y, float angle, float speed, Sprite ballImage, World physicsWorld) {
         this.sprite = ballImage;
 
-        this.angle = angle;
+        this.angle = (float)Math.toRadians(angle);
         this.speed = speed;
+
+        fade = 1;
+        goAway = false;
+        remove = false;
 
         x  = x / PIXELS_TO_METERS * SCREEN_RATIO;
         y = y / PIXELS_TO_METERS * SCREEN_RATIO;
@@ -40,13 +48,23 @@ class PixelBadBall {
     }
 
     void update() {
+        if (goAway && !remove) {
+            body.setActive(false);
+            sprite.setAlpha(fade);
+            fade -= .1f;
+
+            if (fade <= 0) {
+                fade = 0;
+                remove = true;
+            }
+        }
         // update sprite to body coordinates
         sprite.setPosition((body.getPosition().x * PIXELS_TO_METERS / SCREEN_RATIO) - sprite.getWidth() / 2,
                 (body.getPosition().y * PIXELS_TO_METERS / SCREEN_RATIO) - sprite.getHeight() / 2);
         sprite.setRotation((float)Math.toDegrees(body.getAngle()));
 
         // rotate body
-        body.applyTorque(5, true);
+        body.setAngularVelocity(.25f);
 
         // move toward direction given
         body.setLinearVelocity(0, 0);
@@ -55,6 +73,17 @@ class PixelBadBall {
 
     void render(SpriteBatch spriteBatch) {
         sprite.draw(spriteBatch);
+    }
+
+    boolean isRemoved() { return remove; }
+
+    void setGoAway() {
+        goAway = true;
+    }
+
+    void dispose(World physicsWorld) {
+        physicsWorld.destroyBody(body);
+        sprite.getTexture().dispose();
     }
 
     Body getBody() { return body; }

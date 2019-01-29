@@ -14,6 +14,7 @@ import static com.platypi.exodus.PixelGame.SCREEN_RATIO;
 class PixelBossSkeleton extends PixelBoss {
 
     private Array<PixelBadBall> fireBalls;
+    private float rotateBullets;
 
     private int moveSensor;
     private int stopFlyingAt;
@@ -23,18 +24,19 @@ class PixelBossSkeleton extends PixelBoss {
     private float shootBallsTimer;
     private float shootBallsSpeed;
 
-    private float shakeBottom;
-
     private Vector2 origin;
 
     private Stages stages;
     private Action action;
 
-    private enum Stages {
-        FLY_AT_PLAYER, SHOOT_FIRE_BALLS
+    private float stage;
+    private int health;
+
+    enum Stages {
+        FLY_AT_PLAYER, SHOOT_FIRE_BALLS, DIE
     }
 
-    private enum Action {
+    enum Action {
         NORMAL, APPEAR, DISAPPEAR, CREATE
     }
 
@@ -47,7 +49,10 @@ class PixelBossSkeleton extends PixelBoss {
         moveSensor = 180;
 
         shootBallsTimer = 0;
-        shootBallsSpeed = 5;
+        shootBallsSpeed = 3;
+
+        stage = 1;
+        health = 1;
 
         stages = Stages.FLY_AT_PLAYER;
         action = Action.CREATE;
@@ -71,8 +76,20 @@ class PixelBossSkeleton extends PixelBoss {
         getBossImage().setRotation((float)Math.toDegrees(getBody().getAngle()));
 
         // update the fireball
-        for (PixelBadBall fireBall : fireBalls)
-            fireBall.update();
+        for (int i = 0; i < fireBalls.size; i++) {
+            fireBalls.get(i).update();
+
+            if (fireBalls.get(i).isRemoved()) {
+                fireBalls.get(i).dispose(physicsWorld);
+                fireBalls.removeIndex(i);
+            }
+        }
+
+        if (health <= 0) {
+            destroy();
+            action = Action.DISAPPEAR;
+            stages = Stages.DIE;
+        }
 
         switch (action) {
             case APPEAR:
@@ -94,15 +111,23 @@ class PixelBossSkeleton extends PixelBoss {
             case DISAPPEAR:
                 getBossImage().setAlpha(getBossImage().getColor().a - .01f);
                 if (getBossImage().getColor().a <= 0) {
-                    getBossImage().setAlpha(0);
-                    getBossImage().setScale(0, 0);
-                    getBossImage().setAlpha(1f);
-                    // appear at origin when gone
-                    // change boss placement to it's original spawn area
-                    getBody().setLinearVelocity(0, 0);
-                    getBody().setTransform(origin, 0);
-                    // now appear
-                    action = Action.APPEAR;
+                    if (isDestroyed()) {
+                        getBossImage().setAlpha(0);
+                        if (getBody() != null)
+                            physicsWorld.destroyBody(getBody());
+                        fullyDestroy();
+                    } else {
+                        getBossImage().setAlpha(0);
+                        getBossImage().setScale(0, 0);
+                        getBossImage().setAlpha(1f);
+                        // appear at origin when gone
+                        // change boss placement to it's original spawn area
+                        getBody().setLinearVelocity(0, 0);
+                        getBody().setAngularVelocity(0);
+                        getBody().setTransform(origin, 0);
+                        // now appear
+                        action = Action.APPEAR;
+                    }
                 }
                 break;
         }
@@ -110,15 +135,19 @@ class PixelBossSkeleton extends PixelBoss {
         switch (stages) {
             case FLY_AT_PLAYER:
                 if (action == Action.NORMAL) {
+                    // rotate
+                    getBody().setAngularVelocity(.5f);
+
                     moveSensor++;
-                    if (moveSensor >= 180) {
+                    if (moveSensor >= 90 * stage) {
                         getBody().setLinearVelocity(0, 0);
-                        getBody().applyForceToCenter(((getBody().getPosition().x * PIXELS_TO_METERS / SCREEN_RATIO) - playerX) * -150, ((getBody().getPosition().y * PIXELS_TO_METERS / SCREEN_RATIO) - playerY) * -150, true);
+                        getBody().applyForceToCenter((((getBody().getPosition().x * PIXELS_TO_METERS / SCREEN_RATIO) - playerX) ) * -150,
+                                (((getBody().getPosition().y * PIXELS_TO_METERS / SCREEN_RATIO) - playerY)) * -150, true);
                         moveSensor = 0;
                     }
 
                     stopFlyingAt++;
-                    if (stopFlyingAt >= 500) {
+                    if (stopFlyingAt >= 500 / stage) {
                         // disappear
                         action = Action.DISAPPEAR;
                         // change stage
@@ -129,42 +158,49 @@ class PixelBossSkeleton extends PixelBoss {
                 break;
             case SHOOT_FIRE_BALLS:
                 if (action == Action.NORMAL) {
-                    getBody().applyTorque(15, true);
-
                     shootBallsTimer++;
-                    if (shootBallsTimer >= 120) {
+                    if (shootBallsTimer >= 30 * stage) {
                         // sho0t fireballs
-                        float nextAngle = getBossImage().getRotation();
-                        for (int i = 0; i < 6; i++) {
+                        float nextAngle = rotateBullets;
+                        for (int i = 0; i < 3; i++) {
                             fireBalls.add(
                                     new PixelBadBall(getBossImage().getX() + getBossImage().getWidth() / 2, getBossImage().getY() + getBossImage().getHeight() / 2,
                                             nextAngle, shootBallsSpeed, new Sprite(new Texture(Gdx.files.internal("Images/Enemies/fireBall.png"))), physicsWorld)
                             );
-                            nextAngle += 360 / 8f;
+                            nextAngle += 360 / 3f;
                         }
-
+                        rotateBullets += 15f * stage;
                         shootBallsTimer = 0;
-                    }
-
-                    // if angle is greater than 360, go back to 0
-                    if (getBossImage().getRotation() >= 360) {
-                        getBossImage().setRotation(getBossImage().getRotation() - 360);
-                        amountRotated++;
-                    }
-
-                    stopShootingAt++;
-                    if (stopShootingAt >= 360 && amountRotated >= 3) {
-                        // reset the torque
-                        getBody().setTransform(getBody().getPosition(), 0);
-                        // change back to moving stage
-                        stages = Stages.FLY_AT_PLAYER;
-                        // reset the variables
-                        stopShootingAt = 0;
-                        amountRotated = 0;
                     }
                 }
                 break;
+            case DIE:
+                getBody().setAngularVelocity(10f);
+                break;
         }
+    }
+
+    void setAction(Action action) { this.action = action; }
+    Action getAction() { return action; }
+
+    void setStages(Stages stages) {
+        this.stages = stages;
+        if (stages == Stages.FLY_AT_PLAYER) {
+            // remove the bullets
+            for (PixelBadBall fireBall : fireBalls)
+                fireBall.setGoAway();
+            // reset the variables
+            stopShootingAt = 0;
+            amountRotated = 0;
+        }
+    }
+    Stages getStages() { return stages; }
+
+    int getHealth() { return health; }
+
+    void stageUP() {
+        stage -= .1f;
+        health--;
     }
 
     Array<PixelBadBall> getFireBalls() { return fireBalls; }
