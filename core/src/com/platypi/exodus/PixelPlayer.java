@@ -56,6 +56,12 @@ class PixelPlayer {
     private float shakeIntensity;
     private float shakeTimer;
 
+    // camera move variables
+    private Vector2 cameraMove;
+    private boolean moveCamera;
+    private float holdMove;
+    private float holdTimer;
+
     // delta time
     private float delta;
 
@@ -130,6 +136,10 @@ class PixelPlayer {
 
             // move speed
             moveSpeed = 0;
+
+            // move to location variables
+            moveCamera = false;
+            cameraMove = new Vector2(0, 0);
         }
 
     }
@@ -171,9 +181,27 @@ class PixelPlayer {
     }
 
     private void cameraUpdate(MapProperties mapProperties) {
-        // set the position based off the x and y coordinates
-        camera.position.set(camera.position.x += (sprite.getX() + sprite.getWidth() / 2 - camera.position.x) * lerp * delta,
-                            camera.position.y += (sprite.getY() - camera.position.y) * lerp * delta, 0);
+        if (!moveCamera) {
+            // set the position based off the x and y coordinates
+            camera.position.set(camera.position.x += (sprite.getX() + sprite.getWidth() / 2 - camera.position.x) * lerp * delta,
+                    camera.position.y += (sprite.getY() - camera.position.y) * lerp * delta, 0);
+        } else {
+            // set the position based off the x and y coordinates of the given move
+            camera.position.set(camera.position.x += (cameraMove.x - camera.position.x) * lerp * delta,
+                    camera.position.y += (cameraMove.y - camera.position.y) * lerp * delta, 0);
+
+            if (camera.position.x >= cameraMove.x - 2 && camera.position.x <= cameraMove.x + 2) {
+                if (camera.position.y >= cameraMove.y - 2 && camera.position.y <= cameraMove.y + 2) {
+                    holdTimer += 1/delta;
+
+                    if (holdTimer >= holdMove) {
+                        holdTimer = 0;
+                        holdMove  = 0;
+                        moveCamera = false;
+                    }
+                }
+            }
+        }
 
         // if the camera is at the edge of the map stop it from moving that way
         if (camera.position.x - camera.viewportWidth / 2 <= 0)
@@ -279,6 +307,12 @@ class PixelPlayer {
         shakeTimer = 0;
         shakeDuration = duration / 1000f;
         shakeIntensity = intensity;
+    }
+
+    void moveCamera(Vector2 cameraMove, float holdMove) {
+        moveCamera = true;
+        this.cameraMove = cameraMove;
+        this.holdMove   = holdMove;
     }
 
     void zoomCamera(float zoom) {

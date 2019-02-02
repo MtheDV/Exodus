@@ -11,6 +11,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 
@@ -94,10 +95,19 @@ class PixelMap {
         for (int i = 0; i < pixelPuzzleButtonsList.size(); i++) {
             for (int j = 0; j < pixelPuzzleWallList.size(); j++) {
                 if (pixelPuzzleButtonsList.get(i).getPUZZLEBUTTON_ID() == pixelPuzzleWallList.get(i).getPUZZLEBUTTON_ID()) {
-                    if (pixelPuzzleButtonsList.get(i).getDown())
+                    if (pixelPuzzleButtonsList.get(i).getDown()) {
                         pixelPuzzleWallList.get(i).setWallOn(false);
-                    else
+                        // move camera towards the location to show the player
+                        if (!pixelPuzzleWallList.get(i).isMovedCamera()) {
+                            player.moveCamera(new Vector2(pixelPuzzleWallList.get(i).getSprite().getX() + pixelPuzzleWallList.get(i).getSprite().getWidth() / 2,
+                                    pixelPuzzleWallList.get(i).getSprite().getY() + pixelPuzzleWallList.get(i).getSprite().getHeight() / 2), 120);
+                            pixelPuzzleWallList.get(i).setMovedCamera(true);
+                        }
+                    }
+                    else {
                         pixelPuzzleWallList.get(i).setWallOn(true);
+                        pixelPuzzleWallList.get(i).setMovedCamera(false);
+                    }
                 }
             }
         }

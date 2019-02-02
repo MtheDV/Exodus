@@ -20,6 +20,9 @@ public class PixelPuzzleWall {
 
     private float height, width;
 
+    // moving the camera
+    private boolean movedCamera;
+
     PixelPuzzleWall(float x, float y, float width, float height, World physicsWorld, int PUZZLEBUTTON_ID) {
         puzzleWall = new Sprite(new Texture(Gdx.files.internal("Images/Items/puzzlewall.png")));
         puzzleWall.setPosition(x, y);
@@ -61,6 +64,8 @@ public class PixelPuzzleWall {
         this.PUZZLEBUTTON_ID = PUZZLEBUTTON_ID;
         // set the puzzle wall on
         wallOn = true;
+        // move camera
+        movedCamera = false;
     }
 
     void update() {
@@ -79,6 +84,9 @@ public class PixelPuzzleWall {
     void render(SpriteBatch spriteBatch) {
         puzzleWall.draw(spriteBatch);
     }
+
+    boolean isMovedCamera() { return movedCamera; }
+    void setMovedCamera(boolean movedCamera) { this.movedCamera = movedCamera; }
 
     void setWallOn(boolean wallOn) { this.wallOn = wallOn; }
 

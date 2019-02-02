@@ -16,15 +16,15 @@ abstract class PixelBoss {
     private boolean destroy;
     private boolean fullyDestroyed;
 
-    PixelBoss(float x, float y, Sprite bossImage, World physicsWorld) {
+    PixelBoss(float x, float y, int width, int height, Sprite bossImage, World physicsWorld) {
         { // CREATING THE SPRITE
             // set the boss sprite
             this.bossImage = bossImage;
             // set the x and y coordinates
             this.bossImage.setPosition(x, y);
             // set the size of the sprite so that not the whole sprite sheet is drawn
-            this.bossImage.setSize(32, 32);
-            this.bossImage.setRegion(0, 0, 32, 32);
+            this.bossImage.setSize(width, height);
+            this.bossImage.setRegion(0, 0, width, height);
 
             { // CREATING THE BODY
                 // create a body definer

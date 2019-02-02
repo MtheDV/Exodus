@@ -21,6 +21,9 @@ class PixelBossSkeleton extends PixelBoss {
     private int stopShootingAt;
     private int amountRotated;
 
+    private float floatBottom;
+    private boolean floatUp;
+
     private float shootBallsTimer;
     private float shootBallsSpeed;
 
@@ -41,7 +44,7 @@ class PixelBossSkeleton extends PixelBoss {
     }
 
     PixelBossSkeleton(float x, float y, World physicsWorld) {
-        super(x, y, new Sprite(new Texture(Gdx.files.internal("Images/Enemies/Bosses/boss1.png"))), physicsWorld);
+        super(x, y, 32, 32, new Sprite(new Texture(Gdx.files.internal("Images/Enemies/Bosses/boss1.png"))), physicsWorld);
         getBody().setFixedRotation(false);
 
         origin = new Vector2(x / PIXELS_TO_METERS * SCREEN_RATIO, y / PIXELS_TO_METERS * SCREEN_RATIO);
@@ -51,8 +54,11 @@ class PixelBossSkeleton extends PixelBoss {
         shootBallsTimer = 0;
         shootBallsSpeed = 3;
 
+        floatBottom = 0;
+        floatUp = false;
+
         stage = 1;
-        health = 1;
+        health = 3;
 
         stages = Stages.FLY_AT_PLAYER;
         action = Action.CREATE;
@@ -72,7 +78,7 @@ class PixelBossSkeleton extends PixelBoss {
     @Override
     void update(float playerX, float playerY, World physicsWorld) {
         getBossImage().setPosition((getBody().getPosition().x * PIXELS_TO_METERS / SCREEN_RATIO) - getBossImage().getWidth() / 2,
-                (getBody().getPosition().y * PIXELS_TO_METERS / SCREEN_RATIO) - getBossImage().getHeight() / 2);
+                (getBody().getPosition().y * PIXELS_TO_METERS / SCREEN_RATIO) - getBossImage().getHeight() / 2 + floatBottom);
         getBossImage().setRotation((float)Math.toDegrees(getBody().getAngle()));
 
         // update the fireball
@@ -134,7 +140,15 @@ class PixelBossSkeleton extends PixelBoss {
 
         switch (stages) {
             case FLY_AT_PLAYER:
+                // set the image to the first animation
+                getBossImage().setRegion(0, 0, (int)getBossImage().getWidth(), (int)getBossImage().getHeight());
+                getBossImage().setOriginCenter();
+
+                // stop floating
+                floatBottom = 0;
+
                 if (action == Action.NORMAL) {
+
                     // rotate
                     getBody().setAngularVelocity(.5f);
 
@@ -158,16 +172,30 @@ class PixelBossSkeleton extends PixelBoss {
                 break;
             case SHOOT_FIRE_BALLS:
                 if (action == Action.NORMAL) {
+                    // set the image to the first animation
+                    getBossImage().setRegion((int)getBossImage().getWidth(), 0, (int)getBossImage().getWidth(), (int)getBossImage().getHeight());
+                    getBossImage().setOriginCenter();
+                    // have the boss bounce up and down
+                    if (floatBottom <= -3)
+                        floatUp = true;
+                    else if (floatBottom >= 1)
+                        floatUp = false;
+
+                    if (floatUp)
+                        floatBottom += .025f;
+                    else
+                        floatBottom -= .025f;
+
                     shootBallsTimer++;
-                    if (shootBallsTimer >= 30 * stage) {
+                    if (shootBallsTimer >= 25 * stage) {
                         // sho0t fireballs
                         float nextAngle = rotateBullets;
-                        for (int i = 0; i < 3; i++) {
+                        for (int i = 0; i < 2; i++) {
                             fireBalls.add(
                                     new PixelBadBall(getBossImage().getX() + getBossImage().getWidth() / 2, getBossImage().getY() + getBossImage().getHeight() / 2,
                                             nextAngle, shootBallsSpeed, new Sprite(new Texture(Gdx.files.internal("Images/Enemies/fireBall.png"))), physicsWorld)
                             );
-                            nextAngle += 360 / 3f;
+                            nextAngle += 360 / 2f;
                         }
                         rotateBullets += 15f * stage;
                         shootBallsTimer = 0;
