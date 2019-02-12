@@ -85,7 +85,7 @@ class PixelMap {
 
         // update the enemies
         for (PixelEnemy enemy : pixelEnemyList)
-            enemy.update();
+            enemy.update(player);
 
         // update the bosses
         for (PixelBoss boss : pixelBossList)

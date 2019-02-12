@@ -48,6 +48,30 @@ class PixelLevelData {
                         );
                 }
                 break;
+            case 3:
+                for (int i = 0; i < 3; i++) {
+                    if (i == 0)
+                        levels.add(
+                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, true)
+                        );
+                    else
+                        levels.add(
+                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, false)
+                        );
+                }
+                break;
+            case 4:
+                for (int i = 0; i < 3; i++) {
+                    if (i == 0)
+                        levels.add(
+                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, true)
+                        );
+                    else
+                        levels.add(
+                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, false)
+                        );
+                }
+                break;
 
                 default: break;
         }

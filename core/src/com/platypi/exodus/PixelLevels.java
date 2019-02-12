@@ -28,8 +28,8 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
     private Sprite playerAnimation;
 
     // scrolling background
-    private float scrollCounter;
-    private float scrollDestX;
+    private static float scrollCounter;
+    private static float scrollDestX;
     private boolean scroll;
     private boolean scrollRight;
     private Sprite black;

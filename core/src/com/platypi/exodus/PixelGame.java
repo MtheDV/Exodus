@@ -220,15 +220,15 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                 for (PixelEnemy enemy : maps.getPixelEnemyList()) {
                     if ((contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) || contact.getFixtureB() == enemy.getBody().getFixtureList().get(1)))
                         enemy.changeDirection(!enemy.getDirection());
-                    if ((contact.getFixtureA() == player.getBody().getFixtureList().get(1) && contact.getFixtureB() == enemy.getBody().getFixtureList().get(2))
-                            || (contact.getFixtureA() == enemy.getBody().getFixtureList().get(2) && contact.getFixtureB() == player.getBody().getFixtureList().get(1)))
-                        if (player.getVelocityY() <= 0)
+                    if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == enemy.getBody())
+                            || (contact.getFixtureA().getBody() == enemy.getBody() && contact.getFixtureB().getBody() == player.getBody())) {
+                        if (enemy.isAbove()) {
                             enemy.setDead(true);
-                        else if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB() == enemy.getBody().getFixtureList().get(1))
-                                || (contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) && contact.getFixtureB().getBody() == player.getBody())) {
+                        } else {
                             resetLevel = true;
                             player.shakeCamera(500, 1);
                         }
+                    }
                 }
                 for (PixelBoss boss : maps.getPixelBossList()) {
                     if (boss instanceof PixelBossSkeleton) {

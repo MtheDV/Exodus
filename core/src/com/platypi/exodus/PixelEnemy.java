@@ -1,6 +1,7 @@
 package com.platypi.exodus;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -23,6 +24,8 @@ class PixelEnemy {
     private boolean moveRight;
 
     private int width, height;
+
+    private boolean above;
 
     PixelEnemy(float x, float y, float width, float height, String enemyType, World physicsWorld) {
         // set the width and height
@@ -51,15 +54,17 @@ class PixelEnemy {
         fixtureDef.shape      = shape;              // define the shape
         fixtureDef.friction   = 3f;                 // define the friction
         fixtureDef.density    = 3f;                 // define the density
+        fixtureDef.filter.groupIndex = -5;
         body.createFixture(fixtureDef);             // create the fixture definition to the body
         body.setFixedRotation(true);                // fixed rotation
 
         // back and forth sensor and killer sensor
         shape = new PolygonShape();
-        shape.setAsBox(width / 2f, height / 2.5f);
+        shape.setAsBox(width / 2f, height / 3f);
         fixtureDef = new FixtureDef();
         fixtureDef.shape    = shape;
         fixtureDef.isSensor = true;
+        fixtureDef.filter.groupIndex = -5;
         body.createFixture(fixtureDef);
 
         // player kill sensor
@@ -69,16 +74,19 @@ class PixelEnemy {
         fixtureDef = new FixtureDef();
         fixtureDef.shape    = shape;
         fixtureDef.isSensor = true;
+        fixtureDef.filter.groupIndex = -5;
         body.createFixture(fixtureDef);
 
         shape.dispose(); // dispose of what you can
 
-        moveRight = true;
+        moveRight = (int)(Math.random() * 2) == 1;
         dead = 0;
         showDeathAnimation = false;
+
+        above = false;
     }
 
-    void update() {
+    void update(PixelPlayer player) {
         enemySprite.setRegion(width * (int)animationCount, height * dead, width, height);
         enemySprite.setPosition(body.getPosition().x * PIXELS_TO_METERS / SCREEN_RATIO - (enemySprite.getWidth() / 2),
                 body.getPosition().y * PIXELS_TO_METERS / SCREEN_RATIO  - (enemySprite.getHeight() / 2));
@@ -90,6 +98,10 @@ class PixelEnemy {
 
         checkDead();
         moveEnemy();
+
+        // check if the player is above this enemy and adjust
+        float difference = (player.getVelocityY() * PIXELS_TO_METERS / SCREEN_RATIO) / 25f;
+        above = (player.getSprite().getY()) >= (enemySprite.getY() + enemySprite.getHeight() + difference);
     }
 
     private void checkDead() {
@@ -145,6 +157,8 @@ class PixelEnemy {
     Body getBody() { return body; }
 
     Sprite getSprite() { return enemySprite; }
+
+    Boolean isAbove() { return above; }
 
     void dispose() {
         enemySprite.getTexture().dispose();
