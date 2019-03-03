@@ -33,7 +33,7 @@ class PixelPuzzleButton {
         bodyDef.position.set(x + (8 / PIXELS_TO_METERS * SCREEN_RATIO) / 2f, y + (8 / PIXELS_TO_METERS * SCREEN_RATIO) / 2f); // set the position
         body = physicsWorld.createBody(bodyDef);    // create the body based on the body definer
         PolygonShape shape = new PolygonShape();    // create the shape of the body
-        shape.setAsBox((8 / PIXELS_TO_METERS * SCREEN_RATIO) / 2f, (8 / PIXELS_TO_METERS * SCREEN_RATIO) / 2f); // set the shape
+        shape.setAsBox((8 / PIXELS_TO_METERS * SCREEN_RATIO) / 2f, (3 / PIXELS_TO_METERS * SCREEN_RATIO) / 2f); // set the shape
         FixtureDef fixtureDef = new FixtureDef();   // create the fixture definition
         fixtureDef.shape      = shape;              // define the shape
         fixtureDef.friction   = 3f;                 // define the friction

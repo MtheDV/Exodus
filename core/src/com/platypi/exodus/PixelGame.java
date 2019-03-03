@@ -218,12 +218,15 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         player.shakeCamera(500, 1);
                     }
                 for (PixelEnemy enemy : maps.getPixelEnemyList()) {
-                    if ((contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) || contact.getFixtureB() == enemy.getBody().getFixtureList().get(1)))
-                        enemy.changeDirection(!enemy.getDirection());
+                    for (PixelEnemyWall enemyWall : maps.getPixelEnemyWalls())
+                        if ((contact.getFixtureA() == enemy.getBody().getFixtureList().get(1) && contact.getFixtureB().getBody() == enemyWall.getBody())
+                                || (contact.getFixtureA().getBody() == enemyWall.getBody() && contact.getFixtureB() == enemy.getBody().getFixtureList().get(1)))
+                            enemy.changeDirection(!enemy.getDirection());
                     if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == enemy.getBody())
                             || (contact.getFixtureA().getBody() == enemy.getBody() && contact.getFixtureB().getBody() == player.getBody())) {
                         if (enemy.isAbove()) {
                             enemy.setDead(true);
+                            player.resetJumping();
                         } else {
                             resetLevel = true;
                             player.shakeCamera(500, 1);
@@ -231,6 +234,25 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                     }
                 }
                 for (PixelBoss boss : maps.getPixelBossList()) {
+                    if (boss instanceof PixelBossWorm) {
+                        if (collideBoss)
+                            if ((((PixelBossWorm) boss).getStages() == PixelBossWorm.Stages.MOVE_TOWARDS_PLAYER || ((PixelBossWorm) boss).getStages() == PixelBossWorm.Stages.JUMP)
+                                    && ((PixelBossWorm) boss).getAction() == PixelBossWorm.Action.NORMAL)
+                                if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB() == boss.getBody().getFixtureList().get(0))
+                                        || (contact.getFixtureA() == boss.getBody().getFixtureList().get(0) && contact.getFixtureB().getBody() == player.getBody()))
+                                    resetLevel = true;
+                        if (((PixelBossWorm) boss).getStages() == PixelBossWorm.Stages.JUMP
+                                && ((PixelBossWorm) boss).getAction() == PixelBossWorm.Action.NORMAL)
+                            if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB() == boss.getBody().getFixtureList().get(1))
+                                    || (contact.getFixtureA() == boss.getBody().getFixtureList().get(1) && contact.getFixtureB().getBody() == player.getBody())) {
+                                if (((PixelBossWorm) boss).getHealth() > 0) {
+                                    ((PixelBossWorm) boss).stageUP();
+                                    player.shakeCamera(700, 3);
+                                    ((PixelBossWorm) boss).setStages(PixelBossWorm.Stages.MOVE_TOWARDS_PLAYER);
+                                    collideBoss = false;
+                                }
+                            }
+                    }
                     if (boss instanceof PixelBossSkeleton) {
                         if (collideBoss)
                             if (((PixelBossSkeleton) boss).getStages() == PixelBossSkeleton.Stages.FLY_AT_PLAYER
@@ -306,6 +328,14 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                             }
                         }
                     }
+                }
+                for (PixelCollision pixelCollision : maps.getPixelBoxList()) {
+                    for (PixelBoss boss : maps.getPixelBossList())
+                        if (boss instanceof PixelBossWorm)
+                            if ((contact.getFixtureA().getBody() == boss.getBody() && contact.getFixtureB().getBody() == pixelCollision.getBody())
+                                    || contact.getFixtureA().getBody() == pixelCollision.getBody() && contact.getFixtureB().getBody() == boss.getBody())
+                                if (pixelCollision.isOneWay())
+                                    contact.setEnabled(false);
                 }
             }
 

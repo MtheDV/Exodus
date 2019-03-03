@@ -32,6 +32,7 @@ class PixelMap {
     private ArrayList<PixelSign> pixelSignList;
     private ArrayList<PixelTrap> pixelTrapList;
     private ArrayList<PixelEnemy> pixelEnemyList;
+    private ArrayList<PixelEnemyWall> pixelEnemyWalls;
     private ArrayList<PixelBoss> pixelBossList;
     private PixelBossTrigger bossTrigger;
 
@@ -46,7 +47,7 @@ class PixelMap {
     private PixelEnemy removeEnemyID;
 
     private enum Types {
-        WALL, PUZZLEBOX, PUZZLEBUTTON, PUZZLEWALL, PLAYERSTART, PLAYEREND, SIGN, TRAP, ENEMY, BOSS, BOSSTRIGGER
+        WALL, PUZZLEBOX, PUZZLEBUTTON, PUZZLEWALL, PLAYERSTART, PLAYEREND, SIGN, TRAP, ENEMY, ENEMYWALL, BOSS, BOSSTRIGGER
     }
 
     PixelMap() {
@@ -59,6 +60,7 @@ class PixelMap {
         pixelSignList          = new ArrayList<PixelSign>();
         pixelTrapList          = new ArrayList<PixelTrap>();
         pixelEnemyList         = new ArrayList<PixelEnemy>();
+        pixelEnemyWalls        = new ArrayList<PixelEnemyWall>();
         pixelBossList          = new ArrayList<PixelBoss>();
 
         // set the background
@@ -94,15 +96,15 @@ class PixelMap {
         // loop through the buttons and the walls to find id's and set active or not
         for (int i = 0; i < pixelPuzzleButtonsList.size(); i++) {
             for (int j = 0; j < pixelPuzzleWallList.size(); j++) {
-                if (pixelPuzzleButtonsList.get(i).getPUZZLEBUTTON_ID() == pixelPuzzleWallList.get(i).getPUZZLEBUTTON_ID()) {
+                if (pixelPuzzleButtonsList.get(i).getPUZZLEBUTTON_ID() == pixelPuzzleWallList.get(j).getPUZZLEBUTTON_ID()) {
                     if (pixelPuzzleButtonsList.get(i).getDown()) {
-                        pixelPuzzleWallList.get(i).setWallOn(false);
+                        pixelPuzzleWallList.get(j).setWallOn(false);
                         // move camera towards the location to show the player
-                        if (!pixelPuzzleWallList.get(i).isMovedCamera()) {
-                            player.moveCamera(new Vector2(pixelPuzzleWallList.get(i).getSprite().getX() + pixelPuzzleWallList.get(i).getSprite().getWidth() / 2,
-                                    pixelPuzzleWallList.get(i).getSprite().getY() + pixelPuzzleWallList.get(i).getSprite().getHeight() / 2), 120);
-                            pixelPuzzleWallList.get(i).setMovedCamera(true);
-                        }
+//                        if (!pixelPuzzleWallList.get(i).isMovedCamera()) {
+//                            player.moveCamera(new Vector2(pixelPuzzleWallList.get(j).getSprite().getX() + pixelPuzzleWallList.get(j).getSprite().getWidth() / 2,
+//                                    pixelPuzzleWallList.get(j).getSprite().getY() + pixelPuzzleWallList.get(j).getSprite().getHeight() / 2), 120);
+//                            pixelPuzzleWallList.get(j).setMovedCamera(true);
+//                        }
                     }
                     else {
                         pixelPuzzleWallList.get(i).setWallOn(true);
@@ -177,6 +179,7 @@ class PixelMap {
         pixelSignList.clear();
         pixelTrapList.clear();
         pixelEnemyList.clear();
+        pixelEnemyList.clear();
         pixelBossList.clear();
 
         // set the map
@@ -204,6 +207,8 @@ class PixelMap {
         getLayerObjects("traps", physicsWorld, Types.TRAP);
         // get the enemy properties
         getLayerObjects("enemies", physicsWorld, Types.ENEMY);
+        // get the enemy properties
+        getLayerObjects("enemy collision", physicsWorld, Types.ENEMYWALL);
         // get the boss event properties
         getLayerObjects("boss event trigger", physicsWorld, Types.BOSSTRIGGER);
     }
@@ -264,11 +269,22 @@ class PixelMap {
         );
     }
 
+    private void createEnemyWall(float x, float y, World physicsWorld) {
+        // add an enemy walls to the list
+        pixelEnemyWalls.add(
+                new PixelEnemyWall(x, y, physicsWorld)
+        );
+    }
+
     private void createBoss(float x, float y, int bossID, World physicsWorld) {
         // add an enemy to the list
         if (bossID == 1)
             pixelBossList.add(
                     new PixelBossSkeleton(x, y, physicsWorld)
+            );
+        else if (bossID == 2)
+            pixelBossList.add(
+                    new PixelBossWorm(x, y, physicsWorld)
             );
     }
 
@@ -337,6 +353,12 @@ class PixelMap {
                         // set the position
                         createEnemy(enemyRectangle.x, enemyRectangle.y, enemyRectangle.width, enemyRectangle.height, String.valueOf(worldObjects.getProperties().get("type")), physicsWorld);
                     }
+                    else if (type == Types.ENEMYWALL) {
+                        // create rectangle of the player start position
+                        Rectangle enemyRectangle = ((RectangleMapObject) worldObjects).getRectangle();
+                        // set the position
+                        createEnemyWall(enemyRectangle.x, enemyRectangle.y, physicsWorld);
+                    }
                     else if (type == Types.BOSS) {
                         // create rectangle of the player start position
                         Rectangle bossRectangle = ((RectangleMapObject) worldObjects).getRectangle();
@@ -391,6 +413,8 @@ class PixelMap {
     ArrayList<PixelTrap> getPixelTrapList() { return pixelTrapList; }
 
     ArrayList<PixelEnemy> getPixelEnemyList() { return pixelEnemyList; }
+
+    ArrayList<PixelEnemyWall> getPixelEnemyWalls() { return pixelEnemyWalls; }
 
     ArrayList<PixelBoss> getPixelBossList() { return  pixelBossList; }
 

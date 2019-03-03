@@ -87,7 +87,7 @@ class PixelPlayer {
             body = physicsWorld.createBody(bodyDef);
             // create the shape of the body (square)
             PolygonShape shape = new PolygonShape();
-            shape.setAsBox((sprite.getWidth() - .1f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (sprite.getHeight() - .1f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f);
+            shape.setAsBox((sprite.getWidth() - 1f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (sprite.getHeight() - .1f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f);
             // set the physics properties of the body
             FixtureDef fixtureDef = new FixtureDef();
             fixtureDef.shape      = shape;

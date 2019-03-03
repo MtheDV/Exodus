@@ -38,8 +38,9 @@ class PixelPuzzleBox {
         shape.setAsBox(width / 2f, height / 2f); // set the shape
         FixtureDef fixtureDef = new FixtureDef();   // create the fixture definition
         fixtureDef.shape      = shape;              // define the shape
-        fixtureDef.friction   = 3f;                 // define the friction
-        fixtureDef.density    = 3f;                 // define the density
+        fixtureDef.friction   = 1f;                 // define the friction
+        fixtureDef.density    = 7f;                 // define the density
+        fixtureDef.filter.groupIndex = -5;
         body.createFixture(fixtureDef);             // create the fixture definition to the body
         body.setFixedRotation(true);                // fixed rotation
         shape.dispose();                            // dispose of what you can

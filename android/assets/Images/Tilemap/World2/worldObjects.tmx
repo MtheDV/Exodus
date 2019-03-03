@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.2.2" orientation="orthogonal" renderorder="right-down" width="18" height="13" tilewidth="8" tileheight="8" infinite="0" nextlayerid="21" nextobjectid="154">
+ <tileset firstgid="1" source="Test Tileset.tsx"/>
+ <layer id="17" name="background" width="18" height="13">
+  <data encoding="csv">
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
+</data>
+ </layer>
+ <layer id="18" name="walls" width="18" height="13">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="19" name="in front of player" width="18" height="13">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup color="#7d7dff" id="4" name="collision walls">
+  <object id="133" x="48" y="16" width="24" height="8">
+   <properties>
+    <property name="isOneWay" type="bool" value="false"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup color="#ffc87d" id="5" name="puzzle boxes">
+  <object id="141" x="120" y="16" width="8" height="8"/>
+ </objectgroup>
+ <objectgroup color="#7dff00" id="6" name="puzzle buttons">
+  <object id="142" x="120" y="32" width="8" height="8">
+   <properties>
+    <property name="PUZZLE_ID" type="int" value="1"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup color="#7dff7d" id="7" name="puzzle walls">
+  <object id="143" x="120" y="48" width="8" height="40">
+   <properties>
+    <property name="PUZZLE_ID" type="int" value="1"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup color="#ff0000" id="8" name="exit">
+  <object id="137" x="16" y="40" width="8" height="16"/>
+ </objectgroup>
+ <objectgroup color="#00ff00" id="9" name="player spawn">
+  <object id="3" x="16" y="16" width="8" height="16"/>
+ </objectgroup>
+ <objectgroup color="#7d0000" id="10" name="signs">
+  <object id="126" x="32" y="16" width="8" height="8">
+   <properties>
+    <property name="scale" type="float" value="1.2"/>
+    <property name="text" value="Tap the up arrow to Jump"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup color="#ffffff" id="11" name="traps">
+  <object id="140" x="96" y="16" width="16" height="8"/>
+ </objectgroup>
+ <objectgroup color="#ff4cfd" id="16" name="enemy collision">
+  <object id="139" x="80" y="32" width="8" height="8"/>
+ </objectgroup>
+ <objectgroup color="#ff00ff" id="12" name="enemies">
+  <object id="138" x="80" y="16" width="8" height="8">
+   <properties>
+    <property name="type" value="Slug"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="20" name="labels">
+  <object id="144" x="16" y="8" width="16" height="8">
+   <text pixelsize="5" wrap="1" color="#ffffff">Start</text>
+  </object>
+  <object id="145" x="16" y="32" width="16" height="8">
+   <text pixelsize="5" wrap="1" color="#ffffff">Exit</text>
+  </object>
+  <object id="146" x="32" y="8" width="16" height="8">
+   <text pixelsize="5" wrap="1" color="#ffffff">Sign</text>
+  </object>
+  <object id="147" x="48" y="8" width="16" height="8">
+   <text pixelsize="5" wrap="1" color="#ffffff">Walls</text>
+  </object>
+  <object id="148" x="80" y="8" width="16" height="8">
+   <text pixelsize="5" wrap="1" color="#ffffff">Enemy</text>
+  </object>
+  <object id="149" x="80" y="24" width="16" height="8">
+   <text pixelsize="5" wrap="1" color="#ffffff">Wall</text>
+  </object>
+  <object id="150" x="96" y="8" width="16" height="8">
+   <text pixelsize="5" wrap="1" color="#ffffff">Trap</text>
+  </object>
+  <object id="151" x="120" y="8" width="16" height="8">
+   <text pixelsize="5" wrap="1" color="#ffffff">Box</text>
+  </object>
+  <object id="152" x="120" y="24" width="24" height="8">
+   <text pixelsize="5" wrap="1" color="#ffffff">Pressure</text>
+  </object>
+  <object id="153" x="120" y="40" width="16" height="8">
+   <text pixelsize="5" wrap="1" color="#ffffff">Wall</text>
+  </object>
+ </objectgroup>
+</map>

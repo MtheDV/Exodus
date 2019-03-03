@@ -34,7 +34,7 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
     private boolean scrollRight;
     private Sprite black;
 
-    private static int[] scrollDestinations = { 0, 192, 384, 576, 768, 960, 1152};
+    private static int[] scrollDestinations = { 0, 192, 384, 576, 768, 960, 1152, 1344, 1536, 1728, 1920, 2112, 2304, 2496, 2688, 2880, 3072, 3264};
 
     // left and right arrow
     private Sprite rightArrow;

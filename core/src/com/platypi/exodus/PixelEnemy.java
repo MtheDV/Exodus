@@ -49,7 +49,7 @@ class PixelEnemy {
         bodyDef.position.set(x + width / 2f, y + height / 2f); // set the position
         body = physicsWorld.createBody(bodyDef);    // create the body based on the body definer
         PolygonShape shape = new PolygonShape();    // create the shape of the body
-        shape.setAsBox(width / 2f, height / 2f); // set the shape
+        shape.setAsBox((width - 1f) / 2f, height / 2f); // set the shape
         FixtureDef fixtureDef = new FixtureDef();   // create the fixture definition
         fixtureDef.shape      = shape;              // define the shape
         fixtureDef.friction   = 3f;                 // define the friction

@@ -27,10 +27,10 @@ class PixelCloud {
         else {
             if (moveSpeed > 0)
                 cloud.setPosition(-cloud.getWidth(),
-                        (int)(Math.random() * (guiCamera.viewportHeight - 2 * black.getHeight()) + black.getHeight() - 10));
+                        (int)(Math.random() * (guiCamera.viewportHeight - 2 * black.getHeight()) + black.getHeight() - 40));
             else
                 cloud.setPosition(guiCamera.viewportWidth,
-                        (int)(Math.random() * (guiCamera.viewportHeight - 2 * black.getHeight()) + black.getHeight() - 10));
+                        (int)(Math.random() * (guiCamera.viewportHeight - 2 * black.getHeight()) + black.getHeight() - 40));
         }
         // set the image to be flipped or not
         cloud.setFlip(((int)(Math.random() * 2)) == 1, false);

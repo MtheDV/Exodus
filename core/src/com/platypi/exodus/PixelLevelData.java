@@ -25,50 +25,26 @@ class PixelLevelData {
         // add levels based on world
         switch (world + 1) {
             case 1:
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 15; i++) {
                     if (i == 0)
                         levels.add(
-                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, true)
+                                new Level("World" + (world + 1) + "/world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, true)
                         );
                     else
                         levels.add(
-                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, false)
+                                new Level("World" + (world + 1) + "/world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, false)
                         );
                 }
                 break;
             case 2:
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 15; i++) {
                     if (i == 0)
                         levels.add(
-                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, true)
+                                new Level("World" + (world + 1) + "/world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, true)
                         );
                     else
                         levels.add(
-                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, false)
-                        );
-                }
-                break;
-            case 3:
-                for (int i = 0; i < 3; i++) {
-                    if (i == 0)
-                        levels.add(
-                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, true)
-                        );
-                    else
-                        levels.add(
-                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, false)
-                        );
-                }
-                break;
-            case 4:
-                for (int i = 0; i < 3; i++) {
-                    if (i == 0)
-                        levels.add(
-                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, true)
-                        );
-                    else
-                        levels.add(
-                                new Level("world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, false)
+                                new Level("World" + (world + 1) + "/world" + (world + 1) + "-" + (i + 1) + ".tmx", levels.size() + 1, false)
                         );
                 }
                 break;
@@ -81,7 +57,7 @@ class PixelLevelData {
         totalLevels = levels.size();
 
         // set the scrolling background for the world
-        levelSelectBackground = new Texture(Gdx.files.internal("Images/Tilemap/scrollingbackgroundWorld" + (world + 1) + ".png"));
+        levelSelectBackground = new Texture(Gdx.files.internal("Images/Tilemap/World" + (world + 1) + "/scrollingbackgroundWorld" + (world + 1) + ".png"));
     }
 
     Level getLevel(int levelID) {

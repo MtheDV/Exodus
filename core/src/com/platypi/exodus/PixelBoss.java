@@ -16,7 +16,7 @@ abstract class PixelBoss {
     private boolean destroy;
     private boolean fullyDestroyed;
 
-    PixelBoss(float x, float y, int width, int height, Sprite bossImage, World physicsWorld) {
+    PixelBoss(float x, float y, int width, int height, Sprite bossImage, World physicsWorld, boolean land) {
         { // CREATING THE SPRITE
             // set the boss sprite
             this.bossImage = bossImage;
@@ -36,21 +36,35 @@ abstract class PixelBoss {
                 // create the body based on the body def
                 body = physicsWorld.createBody(bodyDef);
                 // create the shape of the body (square)
-                PolygonShape shape = new PolygonShape();
-                shape.setAsBox((bossImage.getWidth()) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
-                        (bossImage.getHeight()) / PIXELS_TO_METERS * SCREEN_RATIO / 2f);
+                Shape shape;
+                if (!land) {
+                    shape = new PolygonShape();
+                    ((PolygonShape) shape).setAsBox((bossImage.getWidth()) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
+                            (bossImage.getHeight()) / PIXELS_TO_METERS * SCREEN_RATIO / 2f);
+                } else {
+                    shape = new CircleShape();
+                    shape.setRadius((bossImage.getWidth() - .2f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f);
+                }
                 // set the physics properties of the body
                 FixtureDef fixtureDef = new FixtureDef();
                 fixtureDef.shape = shape;
-                fixtureDef.friction = 0f;
-                fixtureDef.density = 1f;
-                fixtureDef.isSensor = true;
+                if (!land) {
+                    fixtureDef.isSensor = true;
+                } else {
+                    fixtureDef.friction = .05f;
+                    fixtureDef.density = .5f;
+                    fixtureDef.isSensor = false;
+                }
                 // add the fixture definition to the body
                 body.createFixture(fixtureDef);
                 // create the top of the boss that gets stepped on
                 shape = new PolygonShape();
-                shape.setAsBox((bossImage.getWidth()) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (1f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
-                        new Vector2(0, (bossImage.getHeight() / 2) / PIXELS_TO_METERS * SCREEN_RATIO), 0);
+                if (!land)
+                    ((PolygonShape) shape).setAsBox((bossImage.getWidth()) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (2f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
+                            new Vector2(0, (bossImage.getHeight() / 2) / PIXELS_TO_METERS * SCREEN_RATIO), 0);
+                else
+                    ((PolygonShape) shape).setAsBox((bossImage.getWidth()) / PIXELS_TO_METERS * SCREEN_RATIO / 5f, (5f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
+                            new Vector2(0, (bossImage.getHeight() / 2) / PIXELS_TO_METERS * SCREEN_RATIO), 0);
 
                 // set the physics properties of the body
                 fixtureDef = new FixtureDef();
@@ -59,8 +73,12 @@ abstract class PixelBoss {
                 // add the fixture definition to the body
                 body.createFixture(fixtureDef);
 
-                body.setFixedRotation(true);
-                body.setGravityScale(0);
+                if (!land) {
+                    body.setFixedRotation(false);
+                    body.setGravityScale(0);
+                } else {
+                    body.setFixedRotation(true);
+                }
                 // dispose of the shape
                 shape.dispose();
             }
@@ -76,10 +94,6 @@ abstract class PixelBoss {
 
     Sprite getBossImage() {
         return bossImage;
-    }
-
-    void setBossImage(Sprite bossImage) {
-        this.bossImage = bossImage;
     }
 
     Body getBody() {

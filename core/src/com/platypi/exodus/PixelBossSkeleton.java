@@ -44,8 +44,7 @@ class PixelBossSkeleton extends PixelBoss {
     }
 
     PixelBossSkeleton(float x, float y, World physicsWorld) {
-        super(x, y, 32, 32, new Sprite(new Texture(Gdx.files.internal("Images/Enemies/Bosses/boss1.png"))), physicsWorld);
-        getBody().setFixedRotation(false);
+        super(x, y, 32, 32, new Sprite(new Texture(Gdx.files.internal("Images/Enemies/Bosses/boss1.png"))), physicsWorld, false);
 
         origin = new Vector2(x / PIXELS_TO_METERS * SCREEN_RATIO, y / PIXELS_TO_METERS * SCREEN_RATIO);
 

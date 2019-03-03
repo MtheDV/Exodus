@@ -46,7 +46,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
     private float worldAngle;
     private boolean worldSpinToLevel;
     private static int worldDestinationsPick = 0;
-    private static float[] worldAngleDestinations = {270, 0, 90, 180};
+    private static float[] worldAngleDestinations = {270, 90};
     private static boolean worldPick = false;
     private float worldUpWidth;
     private float worldDownWidth;

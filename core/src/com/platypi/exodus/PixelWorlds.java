@@ -8,7 +8,7 @@ class PixelWorlds {
 
     private ArrayList<PixelLevelData> worldLevels;
 
-    private static final int totalWorlds = 4;
+    private static final int totalWorlds = 2;
 
     PixelWorlds() {
         // initialize the worlds list
