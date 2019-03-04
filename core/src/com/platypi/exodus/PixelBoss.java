@@ -50,6 +50,8 @@ abstract class PixelBoss {
                 fixtureDef.shape = shape;
                 if (!land) {
                     fixtureDef.isSensor = true;
+                    fixtureDef.friction = 0f;
+                    fixtureDef.density  = 1f;
                 } else {
                     fixtureDef.friction = .05f;
                     fixtureDef.density = .5f;

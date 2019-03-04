@@ -5,6 +5,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
 public class PixelPlatformer extends Game {
+
+	static AdService adService;
+
+	public PixelPlatformer(AdService adService) {
+		this.adService = adService;
+	}
+
 	@Override
 	public void create () {
 		super.setScreen(new PixelSplash(this));

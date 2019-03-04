@@ -63,10 +63,26 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
     private boolean titleBounceUp;
     private static float titlePositionY;
 
+    // settings button
+    private Sprite settingsButton;
+
+    // settings screen
+    private boolean settings;
+    private Sprite settingsBackground;
+    private Texture scrollSettings;
+    private Sprite settingsBack;
+    private Sprite soundButton;
+    private Sprite musicButton;
+
+    // sound
+    public static boolean musicOn = true;
+    public static boolean soundOn = true;
+
     // fonts
     private FreeTypeFontGenerator fontGenerator;
     private BitmapFont fontSmall;
     private BitmapFont fontLarge;
+    private BitmapFont fontSettings;
 
     // font alpha
     private float fontAlpha;
@@ -134,6 +150,9 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         fontParameter.borderColor = Color.BLACK;
         fontLarge = fontGenerator.generateFont(fontParameter);
         fontLarge.getData().setScale(2.5f);
+        fontParameter.color = Color.WHITE;
+        fontParameter.size  = 16;
+        fontSettings = fontGenerator.generateFont(fontParameter);
 
         // font alpha
         fontAlphaIn = true;
@@ -170,6 +189,32 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         backArrow.setRegion(0, 0, 16, 16);
         backArrow.setPosition(6, guiCamera.viewportHeight - backArrow.getHeight() - 4);
 
+        // setting button
+        settingsButton = new Sprite(new Texture(Gdx.files.internal("Images/GUI/settings.png")));
+        settingsButton.setSize(16, 16);
+        settingsButton.setRegion(0, 0, 16, 16);
+        settingsButton.setPosition(guiCamera.viewportWidth - settingsButton.getWidth() - 6, guiCamera.viewportHeight - backArrow.getHeight() - 4);
+
+        // settings menu
+        settings = false;
+        settingsBackground = new Sprite(new Texture(Gdx.files.internal("Images/GUI/black.png")));
+        settingsBackground.setSize(guiCamera.viewportWidth, guiCamera.viewportHeight);
+        settingsBackground.setAlpha(.5f);
+        settingsBackground.setPosition(0, 0);
+        settingsBack = new Sprite(new Texture(Gdx.files.internal("Images/GUI/back.png")));
+        settingsBack.setSize(16, 16);
+        settingsBack.setRegion(0, 0, 16, 16);
+        settingsBack.setPosition(6, guiCamera.viewportHeight - backArrow.getHeight() - 4);
+        musicButton = new Sprite(new Texture(Gdx.files.internal("Images/GUI/music.png")));
+        musicButton.setSize(16, 16);
+        musicButton.setRegion(0, (musicOn ? 0 : 1) * 16, 16, 16);
+        musicButton.setPosition(guiCamera.viewportWidth / 2 - musicButton.getWidth() - 2, guiCamera.viewportHeight / 2 - musicButton.getWidth() / 2);
+        soundButton = new Sprite(new Texture(Gdx.files.internal("Images/GUI/sound.png")));
+        soundButton.setSize(16, 16);
+        soundButton.setRegion(0, (soundOn ? 0 : 1) * 16, 16, 16);
+        soundButton.setPosition(guiCamera.viewportWidth / 2 + 2, guiCamera.viewportHeight / 2 - soundButton.getWidth() / 2);
+        scrollSettings = new Texture(Gdx.files.internal("Images/Tilemap/pauseScrolling.png"));
+
         // world transitions
         worldAngle = worldAngleDestinations[worldDestinationsPick];
         worldSpinToLevel = false;
@@ -204,6 +249,9 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
         // gesture detector
         gestureDetector = new GestureDetector(this);
+
+//        if (Gdx.app.getType() == Application.ApplicationType.Android)
+//            adService.showInterstitial();
     }
 
     @Override
@@ -222,6 +270,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             if (!Gdx.input.isTouched()) {
                 worldGrow = false;
                 backArrow.setRegion(0, 0, 16, 16);
+                settingsButton.setRegion(0, 0, 16, 16);
             }
 
             // update clouds
@@ -311,6 +360,14 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             }
 
             fontSmall.setColor(1, 1, 1, fontAlpha);
+
+            if (settings) {
+                if (!Gdx.input.isTouched()) {
+                    settingsBack.setRegion(0, 0, 16, 16);
+                    soundButton.setRegion(0, (soundOn ? 0 : 1) * 16, 16, 16);
+                    musicButton.setRegion(0, (musicOn ? 0 : 1) * 16, 16, 16);
+                }
+            }
 
             { // TRANSITIONS
                 // update transition sequencer
@@ -434,7 +491,10 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
             if (worldPick) {
                 // exit button
-                backArrow.draw(spriteBatch);
+                if (!settings)
+                    backArrow.draw(spriteBatch);
+                // settings button
+                settingsButton.draw(spriteBatch);
             }
 
             // draw the title
@@ -464,6 +524,28 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
             // change the projection to the gui camera
             spriteBatch.setProjectionMatrix(guiCamera.combined);
+
+            {
+                if (settings) {
+                    // black background
+                    settingsBackground.draw(spriteBatch);
+
+                    spriteBatch.draw(scrollSettings, 0, guiCamera.viewportHeight / 2 - scrollSettings.getHeight() / 2f);
+
+                    settingsBack.draw(spriteBatch);
+                    musicButton.draw(spriteBatch);
+                    soundButton.draw(spriteBatch);
+
+                    spriteBatch.setProjectionMatrix(fontCamera.combined);
+
+                    fontSettings.draw(spriteBatch, "SETTINGS", 0, fontCamera.viewportHeight / 2 + 70, fontCamera.viewportWidth, Align.center, false);
+                    fontSettings.draw(spriteBatch, "A GAME BY MATHEW DE VIN", 0, fontCamera.viewportHeight / 2 - 65, fontCamera.viewportWidth, Align.center, false);
+                    fontSettings.draw(spriteBatch, "MUSIC/SOUND BY ", 0, fontCamera.viewportHeight / 2 - 80, fontCamera.viewportWidth, Align.center, false);
+
+                    // change the projection to the gui camera
+                    spriteBatch.setProjectionMatrix(guiCamera.combined);
+                }
+            }
 
             // draw the transitions
             transitioner.render(spriteBatch);
@@ -518,11 +600,23 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         guiCamera.unproject(mousePos, guiViewport.getScreenX(), guiViewport.getScreenY(), guiViewport.getScreenWidth(), guiViewport.getScreenHeight());
 
         if (worldPick) {
-            worldGrow = true;
+            if (!settings) {
+                worldGrow = true;
 
-            // button shown as down when the player pressed it
-            if ((mousePos.x >= backArrow.getX() && mousePos.x <= backArrow.getX() + backArrow.getWidth()) && (mousePos.y >= backArrow.getY() && mousePos.y <= backArrow.getY() + backArrow.getHeight()))
-                backArrow.setRegion(16, 0, 16, 16);
+                // button shown as down when the player pressed it
+                if ((mousePos.x >= backArrow.getX() && mousePos.x <= backArrow.getX() + backArrow.getWidth()) && (mousePos.y >= backArrow.getY() && mousePos.y <= backArrow.getY() + backArrow.getHeight()))
+                    backArrow.setRegion(16, 0, 16, 16);
+                if ((mousePos.x >= settingsButton.getX() && mousePos.x <= settingsButton.getX() + settingsButton.getWidth()) &&
+                        (mousePos.y >= settingsButton.getY() && mousePos.y <= settingsButton.getY() + settingsButton.getHeight()))
+                    settingsButton.setRegion(16, 0, 16, 16);
+            } else {
+                if ((mousePos.x >= settingsBack.getX() && mousePos.x <= settingsBack.getX() + settingsBack.getWidth()) && (mousePos.y >= settingsBack.getY() && mousePos.y <= settingsBack.getY() + settingsBack.getHeight()))
+                    settingsBack.setRegion(16, 0, 16, 16);
+                if ((mousePos.x >= musicButton.getX() && mousePos.x <= musicButton.getX() + musicButton.getWidth()) && (mousePos.y >= musicButton.getY() && mousePos.y <= musicButton.getY() + musicButton.getHeight()))
+                    musicButton.setRegion(16, (musicOn ? 0 : 1) * 16, 16, 16);
+                if ((mousePos.x >= soundButton.getX() && mousePos.x <= soundButton.getX() + soundButton.getWidth()) && (mousePos.y >= soundButton.getY() && mousePos.y <= soundButton.getY() + soundButton.getHeight()))
+                    soundButton.setRegion(16, (soundOn ? 0 : 1) * 16, 16, 16);
+            }
         }
 
         return false;
@@ -535,13 +629,26 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             worldDestinationsPick = 0;
         }
         else {// check each button if the mouse is in each
-            if ((mousePos.x >= backArrow.getX() && mousePos.x <= backArrow.getX() + backArrow.getWidth()) && (mousePos.y >= backArrow.getY() && mousePos.y <= backArrow.getY() + backArrow.getHeight())) {
-                // go back to menu
-                worldPick = false;
-                backToMenu = true;
+            if (!settings) {
+                if ((mousePos.x >= backArrow.getX() && mousePos.x <= backArrow.getX() + backArrow.getWidth()) && (mousePos.y >= backArrow.getY() && mousePos.y <= backArrow.getY() + backArrow.getHeight())) {
+                    // go back to menu
+                    worldPick = false;
+                    backToMenu = true;
+                } else if ((mousePos.x >= settingsButton.getX() && mousePos.x <= settingsButton.getX() + settingsButton.getWidth()) &&
+                        (mousePos.y >= settingsButton.getY() && mousePos.y <= settingsButton.getY() + settingsButton.getHeight())) {
+                    settings = true;
+                } else {
+                    if (worlds.getWorld(worldDestinationsPick).isUnlocked())
+                        exitScreen = true;
+                }
             } else {
-                if (worlds.getWorld(worldDestinationsPick).isUnlocked())
-                    exitScreen = true;
+                if ((mousePos.x >= settingsBack.getX() && mousePos.x <= settingsBack.getX() + settingsBack.getWidth()) && (mousePos.y >= settingsBack.getY() && mousePos.y <= settingsBack.getY() + settingsBack.getHeight())) {
+                    settings = false;
+                } else if ((mousePos.x >= musicButton.getX() && mousePos.x <= musicButton.getX() + musicButton.getWidth()) && (mousePos.y >= musicButton.getY() && mousePos.y <= musicButton.getY() + musicButton.getHeight())) {
+                    musicOn = !musicOn;
+                } else if ((mousePos.x >= soundButton.getX() && mousePos.x <= soundButton.getX() + soundButton.getWidth()) && (mousePos.y >= soundButton.getY() && mousePos.y <= soundButton.getY() + soundButton.getHeight())) {
+                    soundOn = !soundOn;
+                }
             }
         }
         return false;
@@ -563,7 +670,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         mousePos = new Vector3(x, y, 0);
         guiCamera.unproject(mousePos, guiViewport.getScreenX(), guiViewport.getScreenY(), guiViewport.getScreenWidth(), guiViewport.getScreenHeight());
 
-        if (worldPick) {
+        if (worldPick && !settings) {
             // move angle based on speed
             worldAngle -= deltaX / 2.5f;
 

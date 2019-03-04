@@ -21,6 +21,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.Iterator;
 
+import static com.platypi.exodus.PixelPlatformer.adService;
+
 /*
  * TODO: ADD ENEMIES, CHANGE TEXTURE PACK, CREATE MORE LEVELS, BETTER TRANSITION ANIMATION, BETTER PAUSE MENU
  */
@@ -91,11 +93,17 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
     // gesture detector
     private GestureDetector gestureDetector;
 
+    // ad variables
+    private boolean showingAd;
+
     // constructor
     PixelGame(Game game) {
         // initialize the game class
         super();
         superGame = game;
+
+        // ad variables
+        showingAd = false;
 
         // create the sprite batch
         spriteBatch = new SpriteBatch();
@@ -459,6 +467,9 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
             { // TRANSITION UPDATING
                 // check if the player has died
                 if (resetLevel) {
+                    // cannot be paused while loading
+                    pause = false;
+
                     // set fade speed
                     transitioner.setFrameSpeed(3f);
 
@@ -478,6 +489,9 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                 }
                 // move to the level selection screen
                 if (setNewLevel) {
+                    // cannot be paused while loading
+                    pause = false;
+
                     // set fade speed
                     transitioner.setFrameSpeed(1f);
 
@@ -496,6 +510,9 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                 }
                 // move to the next level
                 if (toLevelSelect) {
+                    // cannot be paused while loading
+                    pause = false;
+
                     // set fade speed
                     transitioner.setFrameSpeed(.75f);
 
@@ -526,6 +543,13 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         fadedIn = true;
 
                     if (fadedIn) {
+                        if (Gdx.app.getType() == Application.ApplicationType.Android) {
+                            // say you are showing ad
+                            showingAd = true;
+                            // load ad
+                            adService.showInterstitial();
+                        }
+
                         // check if the next level is available, then go to it
                         if (PixelLevels.levelSelected < PixelMenu.worlds.getWorld(PixelLevels.world).size()) {
                             if (PixelLevels.levelSelected + 1 <= PixelMenu.worlds.getWorld(PixelLevels.world).getTotalLevels()) {
@@ -544,6 +568,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                             superGame.setScreen(new PixelLevels(this.superGame, PixelLevels.world));
                             this.dispose();
                         }
+
                         return;
                     }
                 }
@@ -670,16 +695,23 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
 
     @Override
     public void pause() {
-        pause = true;
+        if (!showingAd)
+            pause = true;
+
+        // save the current completed levels
+        PixelMenu.worlds.write(PixelMenu.worldPrefs);
+        PixelMenu.worldPrefs.flush();
     }
 
     @Override
     public void resume() {
+
     }
 
     @Override
     public void hide() {
-        pause();
+        if (!showingAd)
+            pause = true;
     }
 
     @Override
