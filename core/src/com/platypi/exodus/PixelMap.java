@@ -18,6 +18,8 @@ import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import static com.platypi.exodus.PixelMenu.sounds;
+
 class PixelMap {
 
     private TiledMap mainMap;
@@ -99,6 +101,9 @@ class PixelMap {
                 if (pixelPuzzleButtonsList.get(i).getPUZZLEBUTTON_ID() == pixelPuzzleWallList.get(j).getPUZZLEBUTTON_ID()) {
                     if (pixelPuzzleButtonsList.get(i).getDown()) {
                         pixelPuzzleWallList.get(j).setWallOn(false);
+                        if (pixelPuzzleButtonsList.get(i).playSound())
+                            sounds.playSound("select");
+                        pixelPuzzleButtonsList.get(i).allowedPlaySound(false);
                         // move camera towards the location to show the player
 //                        if (!pixelPuzzleWallList.get(i).isMovedCamera()) {
 //                            player.moveCamera(new Vector2(pixelPuzzleWallList.get(j).getSprite().getX() + pixelPuzzleWallList.get(j).getSprite().getWidth() / 2,
@@ -109,6 +114,7 @@ class PixelMap {
                     else {
                         pixelPuzzleWallList.get(i).setWallOn(true);
                         pixelPuzzleWallList.get(i).setMovedCamera(false);
+                        pixelPuzzleButtonsList.get(i).allowedPlaySound(true);
                     }
                 }
             }
@@ -125,6 +131,8 @@ class PixelMap {
             physicsWorld.destroyBody(bossTrigger.getBody());
             // set the event trigger
             triggerBossEvent = false;
+            //play music
+            sounds.playMusic("boss", true);
         }
 
         removeEnemies(physicsWorld);

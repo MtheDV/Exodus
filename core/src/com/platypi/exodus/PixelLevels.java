@@ -16,6 +16,8 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import static com.platypi.exodus.PixelMenu.sounds;
+
 /*
  * TODO: CREATE A LAYOUT FOR THE LEVEL LOADER
  */
@@ -172,6 +174,9 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
 
         // scroll
         scroll = false;
+
+        // play music
+        sounds.playMusic("menu", true);
 
         // gesture detector
         gestureDetector = new GestureDetector(this);
@@ -449,12 +454,17 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
         if ((mousePos.x >= backArrow.getX() && mousePos.x <= backArrow.getX() + backArrow.getWidth()) && (mousePos.y >= backArrow.getY() && mousePos.y <= backArrow.getY() + backArrow.getHeight())) {
             // go back to menu
             backToMenu = true;
+            // play sound
+            sounds.playSound("button");
         } else {
             // new level
-            if (PixelMenu.worlds.getWorld(world).getLevel(levelSelected).isUnlocked())
+            if (PixelMenu.worlds.getWorld(world).getLevel(levelSelected).isUnlocked()) {
                 newLevel = true;
-            else {
+                sounds.playSound("finishLevel");
+                sounds.playMusic("menu", true);
+            } else {
                 shakeLock = true;
+                sounds.playSound("noLevel");
             }
         }
 
@@ -486,6 +496,7 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
                 // update scroll information
                 scrollDestX = scrollDestinations[levelSelected - 1];
                 scroll = true;
+                sounds.playSound("select");
             }
 
         return false;

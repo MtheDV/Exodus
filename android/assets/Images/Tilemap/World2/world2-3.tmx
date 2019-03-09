@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.2" orientation="orthogonal" renderorder="right-down" width="75" height="32" tilewidth="8" tileheight="8" infinite="0" nextlayerid="38" nextobjectid="193">
+<map version="1.2" tiledversion="1.2.2" orientation="orthogonal" renderorder="right-down" width="75" height="32" tilewidth="8" tileheight="8" infinite="0" nextlayerid="38" nextobjectid="195">
  <tileset firstgid="1" source="Test Tileset.tsx"/>
  <layer id="35" name="background" width="75" height="32">
   <data encoding="csv">
@@ -212,6 +212,8 @@
  <objectgroup color="#ffffff" id="11" name="traps">
   <object id="191" x="112" y="240" width="88" height="16"/>
   <object id="192" x="344" y="240" width="256" height="16"/>
+  <object id="193" x="288" y="136" width="8" height="8"/>
+  <object id="194" x="320" y="136" width="8" height="8"/>
  </objectgroup>
  <objectgroup color="#ff4cfd" id="16" name="enemy collision">
   <object id="159" x="408" y="152" width="8" height="8"/>

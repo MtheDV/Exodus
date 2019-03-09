@@ -24,7 +24,7 @@ public class AndroidLauncher extends AndroidApplication implements AdService {
 		layout.addView(gameView);
 
 		interstitialAd = new InterstitialAd(this);
-		interstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+		interstitialAd.setAdUnitId("ca-app-pub-2631649901063502/4430052061");
 		interstitialAd.setAdListener(new AdListener() {
 			@Override
 			public void onAdLoaded() { }

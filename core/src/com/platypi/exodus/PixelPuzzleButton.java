@@ -17,6 +17,8 @@ class PixelPuzzleButton {
 
     private Sprite puzzleButton;
 
+    private boolean playSound;
+
     private int PUZZLEBUTTON_ID;
 
     PixelPuzzleButton(float x, float y, World physicsWorld, int PUZZLEBUTTON_ID) {
@@ -67,6 +69,9 @@ class PixelPuzzleButton {
     }
 
     Boolean getDown() { return down; }
+
+    void allowedPlaySound(boolean playSound) { this.playSound = playSound; }
+    Boolean playSound() { return playSound; }
 
     int getPUZZLEBUTTON_ID() { return PUZZLEBUTTON_ID; }
 

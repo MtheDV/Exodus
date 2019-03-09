@@ -3,6 +3,7 @@ package com.platypi.exodus;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,6 +28,10 @@ class PixelSplash implements Screen {
     private OrthographicCamera guiCamera;
     private Viewport guiViewport;
 
+    // sound effect
+    private Sound whirl;
+    private boolean waitToPlay;
+
     // game to change screens
     private Game superGame;
 
@@ -49,6 +54,10 @@ class PixelSplash implements Screen {
         splashSprite.setRegion(0, 0, 64, 16);
         splashSprite.setPosition(guiCamera.viewportWidth / 2 - splashSprite.getWidth() / 2, guiCamera.viewportHeight / 2 - splashSprite.getHeight() / 2);
         doneAnimating = false;
+
+        // sound effect
+        whirl = Gdx.audio.newSound(Gdx.files.internal("Music/SFX/sfx_sounds_powerup8.wav"));
+        waitToPlay = false;
     }
 
     @Override
@@ -61,12 +70,18 @@ class PixelSplash implements Screen {
 
             waitBeforeAnimate += .75f;
 
-            if (waitBeforeAnimate >= (2 / delta) && waitAfterAnimate <= 0)
+            if (waitBeforeAnimate >= (2 / delta) && waitAfterAnimate <= 0) {
                 animateFrames += 1.5f;
 
-            if (animateFrames >= 18) {
-                waitAfterAnimate += .75f;
+                if (!waitToPlay) {
+                    long id = whirl.play(.15f);
+                    whirl.setPitch(id, .8f);
+                    waitToPlay = true;
+                }
             }
+
+            if (animateFrames >= 18)
+                waitAfterAnimate += .75f;
 
             if (waitAfterAnimate >= (1 / delta))
                 doneAnimating = true;

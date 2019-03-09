@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import static com.platypi.exodus.PixelGame.PIXELS_TO_METERS;
 import static com.platypi.exodus.PixelGame.SCREEN_RATIO;
+import static com.platypi.exodus.PixelMenu.sounds;
 
 class PixelPlayer {
 
@@ -300,6 +301,9 @@ class PixelPlayer {
             jumping = true;
             body.setLinearVelocity(body.getLinearVelocity().x, 0);
             body.setLinearVelocity(body.getLinearVelocity().x, amount);
+
+            // play jumping sound effect
+            sounds.playSound("jump");
         }
     }
 

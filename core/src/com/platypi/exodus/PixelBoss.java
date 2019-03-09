@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.*;
 
 import static com.platypi.exodus.PixelGame.PIXELS_TO_METERS;
 import static com.platypi.exodus.PixelGame.SCREEN_RATIO;
+import static com.platypi.exodus.PixelMenu.sounds;
 
 abstract class PixelBoss {
 
@@ -15,6 +16,8 @@ abstract class PixelBoss {
 
     private boolean destroy;
     private boolean fullyDestroyed;
+
+    private boolean playSound;
 
     PixelBoss(float x, float y, int width, int height, Sprite bossImage, World physicsWorld, boolean land) {
         { // CREATING THE SPRITE
@@ -62,7 +65,7 @@ abstract class PixelBoss {
                 // create the top of the boss that gets stepped on
                 shape = new PolygonShape();
                 if (!land)
-                    ((PolygonShape) shape).setAsBox((bossImage.getWidth()) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (2f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
+                    ((PolygonShape) shape).setAsBox((bossImage.getWidth()) / PIXELS_TO_METERS * SCREEN_RATIO / 2f, (4f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
                             new Vector2(0, (bossImage.getHeight() / 2) / PIXELS_TO_METERS * SCREEN_RATIO), 0);
                 else
                     ((PolygonShape) shape).setAsBox((bossImage.getWidth()) / PIXELS_TO_METERS * SCREEN_RATIO / 5f, (5f) / PIXELS_TO_METERS * SCREEN_RATIO / 2f,
@@ -87,6 +90,7 @@ abstract class PixelBoss {
 
             destroy = false;
             fullyDestroyed = false;
+            playSound = true;
         }
     }
 
@@ -106,7 +110,13 @@ abstract class PixelBoss {
         this.body = body;
     }
 
-    void destroy() { destroy = true; }
+    void destroy() {
+        destroy = true;
+        if (playSound) {
+            sounds.playSound("newBoss");
+            playSound = false;
+        }
+    }
     void fullyDestroy() { fullyDestroyed = true; }
 
     boolean isDestroyed() { return destroy; }

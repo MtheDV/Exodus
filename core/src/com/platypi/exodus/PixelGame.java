@@ -21,11 +21,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.Iterator;
 
+import static com.platypi.exodus.PixelMenu.sounds;
 import static com.platypi.exodus.PixelPlatformer.adService;
-
-/*
- * TODO: ADD ENEMIES, CHANGE TEXTURE PACK, CREATE MORE LEVELS, BETTER TRANSITION ANIMATION, BETTER PAUSE MENU
- */
 
 public class PixelGame implements Screen, GestureDetector.GestureListener {
 
@@ -224,6 +221,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                             || (contact.getFixtureA().getBody() == pixelTrap.getBody() && contact.getFixtureB().getBody() == player.getBody())) {
                         resetLevel = true;
                         player.shakeCamera(500, 1);
+                        sounds.playSound("land");
                     }
                 for (PixelEnemy enemy : maps.getPixelEnemyList()) {
                     for (PixelEnemyWall enemyWall : maps.getPixelEnemyWalls())
@@ -235,9 +233,11 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         if (enemy.isAbove()) {
                             enemy.setDead(true);
                             player.resetJumping();
+                            sounds.playSound("land");
                         } else {
                             resetLevel = true;
                             player.shakeCamera(500, 1);
+                            sounds.playSound("land");
                         }
                     }
                 }
@@ -247,8 +247,10 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                             if ((((PixelBossWorm) boss).getStages() == PixelBossWorm.Stages.MOVE_TOWARDS_PLAYER || ((PixelBossWorm) boss).getStages() == PixelBossWorm.Stages.JUMP)
                                     && ((PixelBossWorm) boss).getAction() == PixelBossWorm.Action.NORMAL)
                                 if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB() == boss.getBody().getFixtureList().get(0))
-                                        || (contact.getFixtureA() == boss.getBody().getFixtureList().get(0) && contact.getFixtureB().getBody() == player.getBody()))
+                                        || (contact.getFixtureA() == boss.getBody().getFixtureList().get(0) && contact.getFixtureB().getBody() == player.getBody())) {
                                     resetLevel = true;
+                                    sounds.playMusic("menu", true);
+                                }
                         if (((PixelBossWorm) boss).getStages() == PixelBossWorm.Stages.JUMP
                                 && ((PixelBossWorm) boss).getAction() == PixelBossWorm.Action.NORMAL)
                             if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB() == boss.getBody().getFixtureList().get(1))
@@ -258,6 +260,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                                     player.shakeCamera(700, 3);
                                     ((PixelBossWorm) boss).setStages(PixelBossWorm.Stages.MOVE_TOWARDS_PLAYER);
                                     collideBoss = false;
+                                    sounds.playSound("land");
                                 }
                             }
                     }
@@ -266,8 +269,10 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                             if (((PixelBossSkeleton) boss).getStages() == PixelBossSkeleton.Stages.FLY_AT_PLAYER
                                     && ((PixelBossSkeleton) boss).getAction() == PixelBossSkeleton.Action.NORMAL)
                                 if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == boss.getBody())
-                                        || (contact.getFixtureA().getBody() == boss.getBody() && contact.getFixtureB().getBody() == player.getBody()))
+                                        || (contact.getFixtureA().getBody() == boss.getBody() && contact.getFixtureB().getBody() == player.getBody())) {
                                     resetLevel = true;
+                                    sounds.playMusic("menu", true);
+                                }
                         if (((PixelBossSkeleton) boss).getStages() == PixelBossSkeleton.Stages.SHOOT_FIRE_BALLS
                                 && ((PixelBossSkeleton) boss).getAction() == PixelBossSkeleton.Action.NORMAL)
                             if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB() == boss.getBody().getFixtureList().get(1))
@@ -277,13 +282,16 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                                     player.shakeCamera(700, 3);
                                     ((PixelBossSkeleton) boss).setStages(PixelBossSkeleton.Stages.FLY_AT_PLAYER);
                                     collideBoss = false;
+                                    sounds.playSound("land");
                                 }
                             }
                         if (collideBoss)
                             for (PixelBadBall fireBall : ((PixelBossSkeleton) boss).getFireBalls())
                                 if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == fireBall.getBody())
-                                        || (contact.getFixtureA().getBody() == fireBall.getBody() && contact.getFixtureB().getBody() == player.getBody()))
+                                        || (contact.getFixtureA().getBody() == fireBall.getBody() && contact.getFixtureB().getBody() == player.getBody())) {
                                     resetLevel = true;
+                                    sounds.playMusic("menu", true);
+                                }
                     }
                 }
                 if (maps.getBossTrigger() != null)
@@ -369,7 +377,6 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
 
     @Override
     public void render(float delta) {
-
         // UPDATING SEQUENCE //
         {
             // get the delta
@@ -403,11 +410,14 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                             maps.createPuzzleBox(boss.getBossImage().getX() + boss.getBossImage().getWidth() / 2f - 4f,
                                     boss.getBossImage().getY() + boss.getBossImage().getHeight() / 2 - 4f, physicsWorld);
                             bossIterator.remove();
+                            sounds.playMusic("menu", true);
                         }
                     }
 
-                    if (Gdx.input.isKeyJustPressed(Input.Keys.P))
+                    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
                         pause = true;
+                        sounds.playSound("pause");
+                    }
 
                     // change buttons back to their up state
                     leftButton.setRegion(0, 0, 24, 24);
@@ -441,6 +451,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                                 }
                                 if ((mousePos.x >= pauseButton.getX() && mousePos.x <= pauseButton.getX() + pauseButton.getWidth()) && (mousePos.y >= pauseButton.getY() && mousePos.y <= pauseButton.getY() + pauseButton.getHeight())) {
                                     pause = true;
+                                    sounds.playSound("pause");
                                 }
                             }
                         }
@@ -481,6 +492,16 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         fadedIn = true;
 
                     if (fadedIn) {
+                        // potential ad
+                        if ((int)(Math.random() * 5) == 1) {
+                            if (Gdx.app.getType() == Application.ApplicationType.Android) {
+                                // say you are showing ad
+                                showingAd = true;
+                                // load ad
+                                adService.showInterstitial();
+                            }
+                        }
+
                         // restart the level
                         superGame.setScreen(new PixelGame(this.superGame));
                         this.dispose();
@@ -543,11 +564,16 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         fadedIn = true;
 
                     if (fadedIn) {
-                        if (Gdx.app.getType() == Application.ApplicationType.Android) {
-                            // say you are showing ad
-                            showingAd = true;
-                            // load ad
-                            adService.showInterstitial();
+                        // play sound
+                        sounds.playSound("finishLevel");
+
+                        if ((int)(Math.random() * 2) == 1) {
+                            if (Gdx.app.getType() == Application.ApplicationType.Android) {
+                                // say you are showing ad
+                                showingAd = true;
+                                // load ad
+                                adService.showInterstitial();
+                            }
                         }
 
                         // check if the next level is available, then go to it
@@ -753,15 +779,20 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
     public boolean tap(float x, float y, int count, int button) {
         mousePos = new Vector3(x, y, 0);
         guiCamera.unproject(mousePos, guiViewport.getScreenX(), guiViewport.getScreenY(), guiViewport.getScreenWidth(), guiViewport.getScreenHeight());
-        // check each button if the mouse is in it
-        if ((mousePos.x >= homeButton.getX() && mousePos.x <= homeButton.getX() + homeButton.getWidth()) && (mousePos.y >= homeButton.getY() && mousePos.y <= homeButton.getY() + homeButton.getHeight())) {
-            toLevelSelect = true;
-        }
-        if ((mousePos.x >= restartButton.getX() && mousePos.x <= restartButton.getX() + restartButton.getWidth()) && (mousePos.y >= restartButton.getY() && mousePos.y <= restartButton.getY() + restartButton.getHeight())) {
-            resetLevel = true;
-        }
-        if ((mousePos.x >= resumeButton.getX() && mousePos.x <= resumeButton.getX() + resumeButton.getWidth()) && (mousePos.y >= resumeButton.getY() && mousePos.y <= resumeButton.getY() + resumeButton.getHeight())) {
-            pause = false;
+        if (pause) {
+            // check each button if the mouse is in it
+            if ((mousePos.x >= homeButton.getX() && mousePos.x <= homeButton.getX() + homeButton.getWidth()) && (mousePos.y >= homeButton.getY() && mousePos.y <= homeButton.getY() + homeButton.getHeight())) {
+                toLevelSelect = true;
+                sounds.playSound("button");
+            }
+            if ((mousePos.x >= restartButton.getX() && mousePos.x <= restartButton.getX() + restartButton.getWidth()) && (mousePos.y >= restartButton.getY() && mousePos.y <= restartButton.getY() + restartButton.getHeight())) {
+                resetLevel = true;
+                sounds.playSound("button");
+            }
+            if ((mousePos.x >= resumeButton.getX() && mousePos.x <= resumeButton.getX() + resumeButton.getWidth()) && (mousePos.y >= resumeButton.getY() && mousePos.y <= resumeButton.getY() + resumeButton.getHeight())) {
+                pause = false;
+                sounds.playSound("resume");
+            }
         }
 
         return false;

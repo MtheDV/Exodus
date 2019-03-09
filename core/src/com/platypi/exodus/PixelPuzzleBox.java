@@ -47,7 +47,7 @@ class PixelPuzzleBox {
     }
 
     void update() {
-        puzzleSprite.setPosition(body.getPosition().x * PIXELS_TO_METERS / SCREEN_RATIO - (puzzleSprite.getWidth() / 2), body.getPosition().y * PIXELS_TO_METERS / SCREEN_RATIO  - (puzzleSprite.getHeight() / 2));
+        puzzleSprite.setPosition(body.getPosition().x * PIXELS_TO_METERS / SCREEN_RATIO  - (puzzleSprite.getWidth() / 2), body.getPosition().y * PIXELS_TO_METERS / SCREEN_RATIO  - (puzzleSprite.getHeight() / 2));
 
     }
 

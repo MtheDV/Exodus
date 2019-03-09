@@ -35,6 +35,10 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
     private Sprite black;
     private Array<PixelCloud> clouds;
 
+    // stars
+    private Sprite starSprite;
+    private Array<Sprite> starSprites;
+
     // back button
     private Sprite backArrow;
 
@@ -105,6 +109,9 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
     // worlds
     static PixelWorlds worlds = new PixelWorlds();
     private static boolean loadedWorld = false;
+
+    // sounds
+    public static PixelSounds sounds = new PixelSounds();
 
     // hold the game class to call other screens
     private Game superGame;
@@ -177,6 +184,15 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         else
             black.setSize(guiCamera.viewportWidth, 20);
 
+        // stars
+        starSprite = new Sprite(new Texture(Gdx.files.internal("Images/Title/star.png")));
+        starSprites = new Array<Sprite>(20);
+        for (int i = 0; i < 30; i++) {
+            Sprite newStar = new Sprite(starSprite);
+            newStar.setPosition((int)(Math.random() * guiCamera.viewportWidth), (int)(Math.random() * guiCamera.viewportHeight - (black.getHeight() * 2)) + black.getHeight());
+            starSprites.add(newStar);
+        }
+
         // clouds
         clouds = new Array<PixelCloud>();
         for (int i = 0; i < (int)(Math.random() * 5 + 5); i++) {
@@ -237,8 +253,12 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         // unlock worlds
         for (int i = 0; i < worlds.getTotalWorlds(); i++)
             if (i != 0)
-                if (worlds.getWorld(i - 1).isUnlocked() && worlds.getWorld(i - 1).getCompletedLevels() == worlds.getWorld(i - 1).getTotalLevels())
+                if (worlds.getWorld(i - 1).isUnlocked() && worlds.getWorld(i - 1).getCompletedLevels() == worlds.getWorld(i - 1).getTotalLevels()) {
                     worlds.getWorld(i).setUnlocked(true);
+                }
+
+        // play music
+        sounds.playMusic("menu", true);
 
         // reset the selected level
         PixelLevels.levelSelected = 1;
@@ -286,6 +306,16 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             // add clouds at random
             if ((int)(Math.random() * 60) == 0) {
                 clouds.add(new PixelCloud(guiCamera, black, true));
+            }
+
+            // update stars
+            for (Sprite star : starSprites) {
+                if (star.getColor().a > 0)
+                    star.setAlpha(star.getColor().a - (float)(Math.random() * .004f));
+                else {
+                    star.setAlpha(1);
+                    star.setPosition((int)(Math.random() * guiCamera.viewportWidth), (int)(Math.random() * guiCamera.viewportHeight - (black.getHeight() * 2)) + black.getHeight());
+                }
             }
 
             // update world angle
@@ -460,6 +490,10 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             // star background
             starBackground.draw(spriteBatch);
 
+            // stars
+            for (Sprite star : starSprites)
+                star.draw(spriteBatch);
+
             // clouds behind the world
             for (PixelCloud cloud : clouds)
                 if (!cloud.isInFrontOfWorld())
@@ -539,8 +573,8 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                     spriteBatch.setProjectionMatrix(fontCamera.combined);
 
                     fontSettings.draw(spriteBatch, "SETTINGS", 0, fontCamera.viewportHeight / 2 + 70, fontCamera.viewportWidth, Align.center, false);
-                    fontSettings.draw(spriteBatch, "A GAME BY MATHEW DE VIN", 0, fontCamera.viewportHeight / 2 - 65, fontCamera.viewportWidth, Align.center, false);
-                    fontSettings.draw(spriteBatch, "MUSIC/SOUND BY ", 0, fontCamera.viewportHeight / 2 - 80, fontCamera.viewportWidth, Align.center, false);
+                    fontSettings.draw(spriteBatch, "A GAME BY MATHEW DE VIN", 0, fontCamera.viewportHeight / 2 - 58, fontCamera.viewportWidth, Align.center, false);
+                    fontSettings.draw(spriteBatch, "MUSIC BY CAELAN ATAMANCHUK", 0, fontCamera.viewportHeight / 2 - 80, fontCamera.viewportWidth, Align.center, false);
 
                     // change the projection to the gui camera
                     spriteBatch.setProjectionMatrix(guiCamera.combined);
@@ -627,6 +661,8 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
         if (!worldPick) {
             worldSpinToLevel = true;
             worldDestinationsPick = 0;
+            // play sound
+            sounds.playSound("select");
         }
         else {// check each button if the mouse is in each
             if (!settings) {
@@ -634,20 +670,37 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                     // go back to menu
                     worldPick = false;
                     backToMenu = true;
+                    // play sound
+                    sounds.playSound("button");
                 } else if ((mousePos.x >= settingsButton.getX() && mousePos.x <= settingsButton.getX() + settingsButton.getWidth()) &&
                         (mousePos.y >= settingsButton.getY() && mousePos.y <= settingsButton.getY() + settingsButton.getHeight())) {
                     settings = true;
+                    // play sound
+                    sounds.playSound("button");
                 } else {
                     if (worlds.getWorld(worldDestinationsPick).isUnlocked())
                         exitScreen = true;
+                        // play sound
+                        sounds.playSound("select");
                 }
             } else {
                 if ((mousePos.x >= settingsBack.getX() && mousePos.x <= settingsBack.getX() + settingsBack.getWidth()) && (mousePos.y >= settingsBack.getY() && mousePos.y <= settingsBack.getY() + settingsBack.getHeight())) {
                     settings = false;
+                    // play sound
+                    sounds.playSound("button");
                 } else if ((mousePos.x >= musicButton.getX() && mousePos.x <= musicButton.getX() + musicButton.getWidth()) && (mousePos.y >= musicButton.getY() && mousePos.y <= musicButton.getY() + musicButton.getHeight())) {
                     musicOn = !musicOn;
+                    // play sound
+                    sounds.playSound("button");
+                    // stop start music
+                    if (musicOn)
+                        sounds.playMusic("menu", true);
+                    else
+                        sounds.stopMusic();
                 } else if ((mousePos.x >= soundButton.getX() && mousePos.x <= soundButton.getX() + soundButton.getWidth()) && (mousePos.y >= soundButton.getY() && mousePos.y <= soundButton.getY() + soundButton.getHeight())) {
                     soundOn = !soundOn;
+                    // play sound
+                    sounds.playSound("button");
                 }
             }
         }
@@ -696,6 +749,8 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                                 || worldAngle >= worldAngleDestinations[i] - (360f / worldAngleDestinations.length / 2)) {
                             worldAngle = worldAngleDestinations[i];
                             worldDestinationsPick = i;
+                            // play sound
+                            sounds.playSound("select");
                         }
                     }
                     else if (worldAngleDestinations[i] - (360 / worldAngleDestinations.length / 2) < 0) {
@@ -703,6 +758,8 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                                 || worldAngle >= worldAngleDestinations[i] - (360f / worldAngleDestinations.length / 2) + 360) {
                             worldAngle = worldAngleDestinations[i];
                             worldDestinationsPick = i;
+                            // play sound
+                            sounds.playSound("select");
                         }
                     }
                     else {
@@ -710,6 +767,8 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                                 && worldAngle >= worldAngleDestinations[i] - (360f / worldAngleDestinations.length / 2)) {
                             worldAngle = worldAngleDestinations[i];
                             worldDestinationsPick = i;
+                            // play sound
+                            sounds.playSound("select");
                         }
                     }
                 }
