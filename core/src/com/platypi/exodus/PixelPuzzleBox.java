@@ -17,6 +17,8 @@ class PixelPuzzleBox {
 
     private float width, height;
 
+    private boolean moving;
+
     PixelPuzzleBox(float x, float y, World physicsWorld) {
         // set the width and height
         height = 8;
@@ -39,16 +41,26 @@ class PixelPuzzleBox {
         FixtureDef fixtureDef = new FixtureDef();   // create the fixture definition
         fixtureDef.shape      = shape;              // define the shape
         fixtureDef.friction   = 1f;                 // define the friction
-        fixtureDef.density    = 7f;                 // define the density
+        fixtureDef.density    = 5f;                 // define the density
         fixtureDef.filter.groupIndex = -5;
         body.createFixture(fixtureDef);             // create the fixture definition to the body
         body.setFixedRotation(true);                // fixed rotation
         shape.dispose();                            // dispose of what you can
+
+        moving = false;
     }
 
     void update() {
-        puzzleSprite.setPosition(body.getPosition().x * PIXELS_TO_METERS / SCREEN_RATIO  - (puzzleSprite.getWidth() / 2), body.getPosition().y * PIXELS_TO_METERS / SCREEN_RATIO  - (puzzleSprite.getHeight() / 2));
+        // don't move when not being touched
+        if (!moving)
+            body.setLinearVelocity(0, body.getLinearVelocity().y);
 
+        if (body.getLinearVelocity().x > 2)
+            body.setLinearVelocity(2, body.getLinearVelocity().y);
+        if (body.getLinearVelocity().x < -2)
+            body.setLinearVelocity(-2, body.getLinearVelocity().y);
+
+        puzzleSprite.setPosition(body.getPosition().x * PIXELS_TO_METERS / SCREEN_RATIO  - (puzzleSprite.getWidth() / 2), body.getPosition().y * PIXELS_TO_METERS / SCREEN_RATIO  - (puzzleSprite.getHeight() / 2));
     }
 
     void render(SpriteBatch spriteBatch) {
@@ -64,4 +76,6 @@ class PixelPuzzleBox {
     }
 
     Sprite getSprite() { return puzzleSprite; }
+
+    void setMoving(boolean moving) { this.moving = moving; }
 }

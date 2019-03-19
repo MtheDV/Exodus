@@ -26,7 +26,6 @@ class PixelSounds {
         newBossSfx = Gdx.audio.newSound(Gdx.files.internal("Music/SFX/sfx_exp_medium13.wav"));
 
         menuMusic = Gdx.audio.newMusic(Gdx.files.internal("Music/Sample_3.mp3"));
-//        levelMusic = Gdx.audio.newMusic(Gdx.files.internal("Music/Mellow-Puzzler.mp3"));
         bossMusic = Gdx.audio.newMusic(Gdx.files.internal("Music/Boss.mp3"));
     }
 
@@ -42,15 +41,6 @@ class PixelSounds {
                     bossMusic.stop();
                 }
             }
-//            if (music.equals("level")) {
-//                if (!levelMusic.isPlaying()) {
-//                    levelMusic.play();
-//                    levelMusic.setVolume(.8f);
-//                    levelMusic.setLooping(loop);
-//                    menuMusic.stop();
-//                    bossMusic.stop();
-//                }
-//            }
             if (music.equals("boss")) {
                 if (!bossMusic.isPlaying()) {
                     bossMusic.play();
@@ -110,5 +100,21 @@ class PixelSounds {
                 newBossSfx.setPitch(id, .5f);
             }
         }
+    }
+
+    void dispose() {
+        menuButtonHit.dispose();
+        jumpSfx.dispose();
+        pauseSfx.dispose();
+        resumeSfx.dispose();
+        landEnemySfx.dispose();
+        finishLevelSfx.dispose();
+        noLevelSfx.dispose();
+        levelSelectSfx.dispose();
+        destroyBossSfx.dispose();
+        newBossSfx.dispose();
+
+        menuMusic.dispose();
+        bossMusic.dispose();
     }
 }

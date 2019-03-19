@@ -16,11 +16,11 @@ class PixelTransition {
     PixelTransition(OrthographicCamera renderedCamera) {
         transitionSequence = new Sprite(new Texture(Gdx.files.internal("Images/Title/transition-sequence.png")));
         transitionSequence.setSize(360, 200);
-        transitionSequence.setPosition(renderedCamera.viewportWidth / 2 - transitionSequence.getWidth() / 2, 0);
         transitionSequence.setRegion(0, 0, 360, 200);
+        transitionSequence.setPosition(renderedCamera.viewportWidth / 2 - transitionSequence.getWidth() / 2, 0);
 
         frame = 0;
-        frameSpeed = 1;
+        frameSpeed = 1f;
         direction = (int)(Math.random() * 4);
     }
 
@@ -66,10 +66,10 @@ class PixelTransition {
     }
 
     private void Out() {
-        if (frame < 30)
+        if (frame < 10)
             frame += frameSpeed;
-        if (frame >= 30) {
-            frame = 30;
+        if (frame >= 10) {
+            frame = 10;
             setTransition(0);
         }
     }
@@ -85,7 +85,7 @@ class PixelTransition {
     }
 
     boolean isOut() {
-        return frame >= 30f;
+        return frame >= 10f;
     }
 
     void dispose() {

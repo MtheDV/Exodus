@@ -88,6 +88,7 @@ class PixelSplash implements Screen {
 
             if (doneAnimating) {
                 superGame.setScreen(new PixelMenu(superGame));
+                this.dispose();
                 return;
             }
 
@@ -134,5 +135,6 @@ class PixelSplash implements Screen {
     public void dispose() {
         spriteBatch.dispose();
         splashSprite.getTexture().dispose();
+        whirl.dispose();
     }
 }

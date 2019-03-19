@@ -260,7 +260,7 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
 
                 // check for transitions
                 if (transitionOut) {
-                    transitioner.setFrameSpeed(1f);
+                    transitioner.setFrameSpeed(.5f);
 
                     if (!fadedOut)
                         transitioner.setTransition(-1);
@@ -273,7 +273,7 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
                     }
                 }
                 if (newLevel) {
-                    transitioner.setFrameSpeed(.75f);
+                    transitioner.setFrameSpeed(.5f);
 
                     if (!fadedIn)
                         transitioner.setTransition(1);
@@ -285,7 +285,7 @@ public class PixelLevels implements Screen, GestureDetector.GestureListener {
                     }
                 }
                 if (backToMenu) {
-                    transitioner.setFrameSpeed(.75f);
+                    transitioner.setFrameSpeed(.5f);
 
                     if (!fadedIn)
                         transitioner.setTransition(1);

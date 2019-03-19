@@ -4,6 +4,8 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
+import static com.platypi.exodus.PixelMenu.sounds;
+
 public class PixelPlatformer extends Game {
 
 	static AdService adService;

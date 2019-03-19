@@ -203,11 +203,15 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                     if (!contact.getFixtureA().isSensor() && !contact.getFixtureB().isSensor())
                         if (player.getVelocityY() <= 0)
                             player.resetJumping();
-                for (PixelPuzzleBox pixelPuzzleBox : maps.getPixelPuzzleBoxList())
+                for (PixelPuzzleBox pixelPuzzleBox : maps.getPixelPuzzleBoxList()) {
                     for (PixelPuzzleButton pixelPuzzleButton : maps.getPixelPuzzleButtonsList())
                         if ((contact.getFixtureA().getBody() == pixelPuzzleBox.getBody() && contact.getFixtureB().getBody() == pixelPuzzleButton.getBody())
                                 || contact.getFixtureA().getBody() == pixelPuzzleButton.getBody() && contact.getFixtureB().getBody() == pixelPuzzleBox.getBody())
                             pixelPuzzleButton.setDown(true);
+                    if (contact.getFixtureA().getBody() == pixelPuzzleBox.getBody() && contact.getFixtureB().getBody() == player.getBody()
+                            || contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == pixelPuzzleBox.getBody())
+                        pixelPuzzleBox.setMoving(true);
+                }
                 for (PixelExit pixelExit : maps.getPixelExitList())
                     if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == pixelExit.getBody())
                             || (contact.getFixtureA().getBody() == pixelExit.getBody() && contact.getFixtureB().getBody() == player.getBody()))
@@ -302,11 +306,15 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
 
             @Override
             public void endContact(Contact contact) {
-                for (PixelPuzzleBox pixelPuzzleBox : maps.getPixelPuzzleBoxList())
+                for (PixelPuzzleBox pixelPuzzleBox : maps.getPixelPuzzleBoxList()) {
                     for (PixelPuzzleButton pixelPuzzleButton : maps.getPixelPuzzleButtonsList())
                         if ((contact.getFixtureA().getBody() == pixelPuzzleBox.getBody() && contact.getFixtureB().getBody() == pixelPuzzleButton.getBody())
                                 || contact.getFixtureA().getBody() == pixelPuzzleButton.getBody() && contact.getFixtureB().getBody() == pixelPuzzleBox.getBody())
                             pixelPuzzleButton.setDown(false);
+                    if (contact.getFixtureA().getBody() == pixelPuzzleBox.getBody() && contact.getFixtureB().getBody() == player.getBody()
+                            || contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == pixelPuzzleBox.getBody())
+                        pixelPuzzleBox.setMoving(false);
+                }
                 for (PixelSign pixelSign : maps.getPixelSignList())
                     if ((contact.getFixtureA().getBody() == player.getBody() && contact.getFixtureB().getBody() == pixelSign.getBody())
                             || (contact.getFixtureA().getBody() == pixelSign.getBody() && contact.getFixtureB().getBody() == player.getBody()))
@@ -482,7 +490,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                     pause = false;
 
                     // set fade speed
-                    transitioner.setFrameSpeed(3f);
+                    transitioner.setFrameSpeed(.5f);
 
                     // set fade in
                     if (!fadedIn)
@@ -493,7 +501,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
 
                     if (fadedIn) {
                         // potential ad
-                        if ((int)(Math.random() * 5) == 1) {
+                        if ((int)(Math.random() * 7) == 1) {
                             if (Gdx.app.getType() == Application.ApplicationType.Android) {
                                 // say you are showing ad
                                 showingAd = true;
@@ -514,7 +522,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                     pause = false;
 
                     // set fade speed
-                    transitioner.setFrameSpeed(1f);
+                    transitioner.setFrameSpeed(.5f);
 
                     // set fade in
                     if (!fadedOut)
@@ -535,7 +543,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                     pause = false;
 
                     // set fade speed
-                    transitioner.setFrameSpeed(.75f);
+                    transitioner.setFrameSpeed(.5f);
 
                     // set fade in
                     if (!fadedIn)
@@ -554,7 +562,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                 // move to the level selection screen
                 if (finishedLevel) {
                     // set fade speed
-                    transitioner.setFrameSpeed(.75f);
+                    transitioner.setFrameSpeed(.5f);
 
                     // set fade in
                     if (!fadedIn)
@@ -567,7 +575,7 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
                         // play sound
                         sounds.playSound("finishLevel");
 
-                        if ((int)(Math.random() * 2) == 1) {
+                        if ((int)(Math.random() * 4) == 1) {
                             if (Gdx.app.getType() == Application.ApplicationType.Android) {
                                 // say you are showing ad
                                 showingAd = true;
@@ -608,8 +616,10 @@ public class PixelGame implements Screen, GestureDetector.GestureListener {
         // DRAWING SEQUENCE //
         {
             // clear the screen
-            Gdx.gl20.glClearColor(0, 0, .05f, 1);
-            Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+            Gdx.gl.glClearColor(0, 0, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+//            Gdx.gl20.glClearColor(0, 0, .05f, 1);
+//            Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
             { // BACKGROUND RENDERING //
                 spriteBatch.setProjectionMatrix(player.getCamera().combined);

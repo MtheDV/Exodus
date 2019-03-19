@@ -405,7 +405,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
 
                 // check for transitions
                 if (enterScreen) {
-                    transitioner.setFrameSpeed(1f);
+                    transitioner.setFrameSpeed(.5f);
 
                     if (!transitioner.isOut())
                         transitioner.setTransition(-1);
@@ -413,7 +413,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                         enterScreen = false;
                 }
                 if (exitScreen) {
-                    transitioner.setFrameSpeed(.75f);
+                    transitioner.setFrameSpeed(.5f);
 
                     if (!transitioner.isIn())
                         transitioner.setTransition(1);
@@ -652,7 +652,6 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
                     soundButton.setRegion(16, (soundOn ? 0 : 1) * 16, 16, 16);
             }
         }
-
         return false;
     }
 
@@ -663,8 +662,7 @@ class PixelMenu implements Screen, GestureDetector.GestureListener {
             worldDestinationsPick = 0;
             // play sound
             sounds.playSound("select");
-        }
-        else {// check each button if the mouse is in each
+        } else {// check each button if the mouse is in each
             if (!settings) {
                 if ((mousePos.x >= backArrow.getX() && mousePos.x <= backArrow.getX() + backArrow.getWidth()) && (mousePos.y >= backArrow.getY() && mousePos.y <= backArrow.getY() + backArrow.getHeight())) {
                     // go back to menu
